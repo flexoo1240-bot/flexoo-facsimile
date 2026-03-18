@@ -105,7 +105,7 @@ const Dashboard = () => {
 
           {/* Join button */}
           <a
-            href="https://t.me/flexoo"
+            href="https://t.me/+Mg7JaPJoFNVhMTc0"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg"
