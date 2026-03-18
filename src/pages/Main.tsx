@@ -198,20 +198,26 @@ const Main = () => {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</p>
           <div className="grid grid-cols-3 gap-2.5">
             {[
-              { icon: User, label: "Profile" },
-              { icon: ShoppingCart, label: "Buy Code" },
-              { icon: TrendingUp, label: "Earn More" },
-              { icon: Clock, label: "History" },
-              { icon: Headphones, label: "Support" },
-              { icon: MessageCircle, label: "Channel" },
-            ].map(({ icon: Icon, label }) => (
+              { icon: User, label: "Profile", highlight: false },
+              { icon: ShoppingCart, label: "Buy Code", highlight: false },
+              { icon: TrendingUp, label: "Earn More", highlight: true },
+              { icon: Clock, label: "History", highlight: false },
+              { icon: Headphones, label: "Support", highlight: false },
+              { icon: MessageCircle, label: "Channel", highlight: false },
+            ].map(({ icon: Icon, label, highlight }) => (
               <button
                 key={label}
                 className="flex flex-col items-center gap-2.5 py-4 rounded-xl transition-colors hover:bg-muted/50"
                 style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
               >
-                <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
-                  <Icon className={`w-5 h-5 ${label === "Earn More" ? "text-primary" : "text-muted-foreground"}`} />
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center"
+                  style={highlight
+                    ? { background: "var(--gradient-cta)" }
+                    : { background: "hsla(150, 30%, 18%, 0.8)" }
+                  }
+                >
+                  <Icon className={`w-5 h-5 ${highlight ? "text-background" : "text-primary"}`} />
                 </div>
                 <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
               </button>
