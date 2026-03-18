@@ -92,3 +92,15 @@
 .bg-glow {
   animation: pulse-glow 4s ease-in-out infinite;
 }
+
+.signup-input {
+  @apply w-full h-10 bg-transparent text-foreground text-sm placeholder:text-muted-foreground/60 focus:outline-none pl-10;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  background: hsla(150, 20%, 8%, 0.5);
+  transition: border-color 0.2s;
+}
+
+.signup-input:focus {
+  border-color: hsl(var(--primary));
+}
