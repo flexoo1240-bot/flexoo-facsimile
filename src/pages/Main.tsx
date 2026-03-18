@@ -1,39 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Wallet,
-  ListChecks,
-  Users,
+  Eye,
+  EyeOff,
   ArrowDownToLine,
   Bell,
-  User,
-  ChevronRight,
-  Gift,
-  TrendingUp,
+  LogOut,
+  Users,
   Copy,
   CheckCircle,
+  User,
+  ShoppingCart,
+  TrendingUp,
+  Clock,
+  Headphones,
+  MessageCircle,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import flexooLogo from "@/assets/flexoo-logo.png";
+import promoBanner1 from "@/assets/promo-banner-1.png";
+import promoBanner2 from "@/assets/promo-banner-2.png";
 
 const container = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.2 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
 };
 const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
 };
 
-const tasks = [
-  { id: 1, title: "Watch a short video", reward: "₦500", done: false },
-  { id: 2, title: "Follow us on Instagram", reward: "₦300", done: false },
-  { id: 3, title: "Share on WhatsApp Status", reward: "₦400", done: false },
-  { id: 4, title: "Complete a survey", reward: "₦600", done: true },
-];
+const banners = [promoBanner1, promoBanner2];
 
 const Main = () => {
   const [copied, setCopied] = useState(false);
-  const referralCode = "FLEX-29X7KP";
+  const [showBalance, setShowBalance] = useState(true);
+  const [currentBanner, setCurrentBanner] = useState(0);
+  const referralCode = "FLEXO5BDAC8";
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const copyCode = () => {
     navigator.clipboard.writeText(referralCode);
@@ -42,7 +55,7 @@ const Main = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-background pb-24">
+    <div className="relative min-h-screen bg-background pb-8">
       {/* Background grid */}
       <div className="absolute inset-0 pointer-events-none">
         <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
@@ -55,155 +68,157 @@ const Main = () => {
         </svg>
       </div>
 
-      {/* Top glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[300px] rounded-full bg-primary/8 blur-[100px]" />
 
-      <motion.div variants={container} initial="hidden" animate="show" className="relative z-10 max-w-md mx-auto px-4 pt-6">
+      <motion.div variants={container} initial="hidden" animate="show" className="relative z-10 max-w-md mx-auto px-4 pt-5">
         {/* Header */}
-        <motion.div variants={item} className="flex items-center justify-between mb-6">
+        <motion.div variants={item} className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
-              <img src={flexooLogo} alt="Flexoo" className="w-6 h-6 object-contain" />
+            <div className="w-11 h-11 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
+              WL
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Welcome back</p>
-              <p className="text-sm font-semibold text-foreground">Flexoo User</p>
+              <p className="text-[11px] text-muted-foreground">Welcome back</p>
+              <p className="text-sm font-bold text-foreground">weblog logs</p>
             </div>
           </div>
-          <button className="w-9 h-9 rounded-xl flex items-center justify-center relative" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
-            <Bell className="w-4 h-4 text-muted-foreground" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
+              <Bell className="w-4 h-4 text-muted-foreground" />
+            </button>
+            <button className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}>
+              <LogOut className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
         </motion.div>
 
         {/* Wallet Card */}
         <motion.div
           variants={item}
-          className="rounded-2xl p-5 mb-5"
-          style={{
-            background: "var(--gradient-cta)",
-            boxShadow: "0 8px 32px hsla(85, 80%, 50%, 0.15)",
-          }}
+          className="rounded-2xl p-5 mb-4"
+          style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
         >
-          <p className="text-xs font-medium mb-1" style={{ color: "hsla(150, 30%, 6%, 0.7)" }}>
-            Total Balance
-          </p>
-          <p className="text-3xl font-bold mb-4" style={{ color: "hsl(150, 30%, 6%)" }}>
-            ₦170,000<span className="text-base font-normal opacity-60">.00</span>
-          </p>
-          <div className="flex gap-3">
-            <button className="flex-1 h-9 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 bg-background/20 backdrop-blur-sm" style={{ color: "hsl(150, 30%, 6%)" }}>
-              <ArrowDownToLine className="w-3.5 h-3.5" /> Withdraw
+          <div className="flex items-center gap-2 mb-3">
+            <Wallet className="w-4 h-4 text-muted-foreground" />
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Wallet Balance</p>
+            <button onClick={() => setShowBalance(!showBalance)} className="ml-auto">
+              {showBalance ? <Eye className="w-4 h-4 text-muted-foreground" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
             </button>
-            <button className="flex-1 h-9 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 bg-background/20 backdrop-blur-sm" style={{ color: "hsl(150, 30%, 6%)" }}>
-              <TrendingUp className="w-3.5 h-3.5" /> Earn More
+          </div>
+          <p className="text-3xl font-bold text-primary mb-4">
+            {showBalance ? "₦170,000" : "••••••"}
+          </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-primary" />
+                <span className="text-xs text-muted-foreground">Active</span>
+              </div>
+              <span className="text-xs text-muted-foreground">|</span>
+              <span className="text-xs text-muted-foreground">ID: 813f641a</span>
+            </div>
+            <button
+              className="h-9 px-4 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+              style={{ background: "var(--gradient-cta)", color: "hsl(150, 30%, 6%)" }}
+            >
+              <ArrowDownToLine className="w-3.5 h-3.5" /> Withdraw
             </button>
           </div>
         </motion.div>
 
-        {/* Quick Actions */}
-        <motion.div variants={item} className="grid grid-cols-4 gap-3 mb-6">
+        {/* Referral Code Card */}
+        <motion.div
+          variants={item}
+          className="rounded-2xl p-4 mb-4 flex items-center gap-3"
+          style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
+        >
+          <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+            <Users className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium text-primary flex items-center gap-1">
+              🎯 Refer & Earn ₦7,000
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Your code: <span className="font-mono font-bold text-foreground">{referralCode}</span>
+            </p>
+          </div>
+          <button
+            onClick={copyCode}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {copied ? <CheckCircle className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
+            <span>{copied ? "Copied" : "Copy"}</span>
+          </button>
+        </motion.div>
+
+        {/* Promo Banner Carousel */}
+        <motion.div variants={item} className="mb-4">
+          <div className="relative rounded-2xl overflow-hidden">
+            <img
+              src={banners[currentBanner]}
+              alt="Promo banner"
+              className="w-full h-auto object-cover rounded-2xl transition-opacity duration-500"
+            />
+          </div>
+          <div className="flex items-center justify-center gap-1.5 mt-2.5">
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentBanner(i)}
+                className={`w-2 h-2 rounded-full transition-all ${i === currentBanner ? "bg-primary w-4" : "bg-muted-foreground/30"}`}
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Stats Row */}
+        <motion.div variants={item} className="grid grid-cols-3 gap-2.5 mb-5">
           {[
-            { icon: ListChecks, label: "Tasks" },
-            { icon: Users, label: "Referrals" },
-            { icon: ArrowDownToLine, label: "Withdraw" },
-            { icon: Gift, label: "Bonus" },
-          ].map(({ icon: Icon, label }) => (
-            <button
+            { icon: Sparkles, label: "TOTAL EARNED", value: "₦170,000" },
+            { icon: Users, label: "REFERRALS", value: "0" },
+            { icon: Sparkles, label: "REF EARNED", value: "₦0" },
+          ].map(({ icon: Icon, label, value }) => (
+            <div
               key={label}
-              className="flex flex-col items-center gap-2 py-3 rounded-xl transition-colors hover:bg-muted/50"
+              className="rounded-xl p-3"
               style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
             >
-              <div className="w-9 h-9 rounded-lg bg-primary/15 flex items-center justify-center">
-                <Icon className="w-4 h-4 text-primary" />
+              <div className="flex items-center gap-1 mb-1.5">
+                <Icon className="w-3 h-3 text-primary" />
+                <span className="text-[9px] font-medium text-muted-foreground uppercase tracking-wide">{label}</span>
               </div>
-              <span className="text-[10px] font-medium text-muted-foreground">{label}</span>
-            </button>
+              <p className="text-sm font-bold text-foreground">{value}</p>
+            </div>
           ))}
         </motion.div>
 
-        {/* Referral Card */}
-        <motion.div
-          variants={item}
-          className="rounded-2xl p-4 mb-6"
-          style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-foreground">Invite & Earn</p>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-medium">₦1,000/referral</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-9 rounded-lg px-3 flex items-center text-xs text-muted-foreground font-mono bg-muted/30 border border-border/50">
-              {referralCode}
-            </div>
-            <button
-              onClick={copyCode}
-              className="h-9 w-9 rounded-lg flex items-center justify-center bg-primary/15 text-primary transition-colors hover:bg-primary/25"
-            >
-              {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Daily Tasks */}
+        {/* Quick Actions */}
         <motion.div variants={item}>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-foreground">Daily Tasks</p>
-            <button className="text-[10px] text-primary font-medium flex items-center gap-0.5">
-              View All <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          <div className="space-y-2.5">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center gap-3 p-3 rounded-xl"
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</p>
+          <div className="grid grid-cols-3 gap-2.5">
+            {[
+              { icon: User, label: "Profile" },
+              { icon: ShoppingCart, label: "Buy Code" },
+              { icon: TrendingUp, label: "Earn More" },
+              { icon: Clock, label: "History" },
+              { icon: Headphones, label: "Support" },
+              { icon: MessageCircle, label: "Channel" },
+            ].map(({ icon: Icon, label }) => (
+              <button
+                key={label}
+                className="flex flex-col items-center gap-2.5 py-4 rounded-xl transition-colors hover:bg-muted/50"
                 style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
               >
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${task.done ? "bg-primary/20" : "bg-muted/50"}`}>
-                  {task.done ? (
-                    <CheckCircle className="w-4 h-4 text-primary" />
-                  ) : (
-                    <ListChecks className="w-4 h-4 text-muted-foreground" />
-                  )}
+                <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+                  <Icon className={`w-5 h-5 ${label === "Earn More" ? "text-primary" : "text-muted-foreground"}`} />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-medium ${task.done ? "text-muted-foreground line-through" : "text-foreground"}`}>
-                    {task.title}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Earn {task.reward}</p>
-                </div>
-                {!task.done && (
-                  <button
-                    className="h-7 px-3 rounded-lg text-[10px] font-semibold"
-                    style={{ background: "var(--gradient-cta)", color: "hsl(150, 30%, 6%)" }}
-                  >
-                    Start
-                  </button>
-                )}
-              </div>
+                <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
+              </button>
             ))}
           </div>
         </motion.div>
       </motion.div>
-
-      {/* Bottom Nav */}
-      <div className="fixed bottom-0 left-0 right-0 z-20" style={{ background: "hsla(150, 30%, 6%, 0.95)", borderTop: "1px solid var(--glass-border)", backdropFilter: "blur(20px)" }}>
-        <div className="max-w-md mx-auto flex items-center justify-around py-2.5 px-4">
-          {[
-            { icon: Wallet, label: "Home", active: true },
-            { icon: ListChecks, label: "Tasks", active: false },
-            { icon: Users, label: "Referrals", active: false },
-            { icon: User, label: "Profile", active: false },
-          ].map(({ icon: Icon, label, active }) => (
-            <button key={label} className="flex flex-col items-center gap-1 py-1 px-3">
-              <Icon className={`w-5 h-5 ${active ? "text-primary" : "text-muted-foreground/60"}`} />
-              <span className={`text-[9px] font-medium ${active ? "text-primary" : "text-muted-foreground/60"}`}>{label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
