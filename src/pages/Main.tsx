@@ -201,8 +201,8 @@ const Main = () => {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Quick Actions</p>
           <div className="grid grid-cols-3 gap-2.5">
             {[
-              { icon: User, label: "Profile", highlight: false },
-              { icon: ShoppingCart, label: "Buy Code", highlight: false },
+              { icon: User, label: "Profile", highlight: false, path: undefined },
+              { icon: ShoppingCart, label: "Buy Code", highlight: false, path: "/buy-code" },
               { icon: TrendingUp, label: "Earn More", highlight: true },
               { icon: Clock, label: "History", highlight: false },
               { icon: Headphones, label: "Support", highlight: false },
