@@ -11,6 +11,7 @@ import Home from "./pages/Home.tsx";
 import Main from "./pages/Main.tsx";
 import Withdraw from "./pages/Withdraw.tsx";
 import BuyCode from "./pages/BuyCode.tsx";
+import Payment from "./pages/Payment.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
