@@ -1,19 +1,21 @@
 import { motion } from "framer-motion";
-import { Send } from "lucide-react";
-import flexooLogo from "@/assets/flexoo-logo.png";
+import { ArrowLeft, ArrowDownToLine, ShoppingCart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const container = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
 };
 const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
 const Withdraw = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="relative min-h-screen bg-background flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen bg-background pb-8">
       {/* Background grid */}
       <div className="absolute inset-0 pointer-events-none">
         <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
@@ -26,17 +28,14 @@ const Withdraw = () => {
         </svg>
       </div>
 
-      {/* Glow effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full bg-primary/8 blur-[120px]" />
-      <div className="absolute bottom-1/4 right-1/4 w-[200px] h-[200px] rounded-full bg-primary/5 blur-[80px]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[300px] rounded-full bg-primary/8 blur-[100px]" />
 
       {/* Floating particles */}
       {[
-        { top: "8%", left: "15%", delay: "0s", size: "w-1.5 h-1.5" },
-        { top: "70%", right: "10%", delay: "2s", size: "w-1 h-1" },
-        { top: "45%", left: "5%", delay: "4s", size: "w-1 h-1" },
-        { top: "25%", right: "20%", delay: "1s", size: "w-1.5 h-1.5" },
-        { top: "80%", left: "30%", delay: "3s", size: "w-1 h-1" },
+        { top: "12%", left: "8%", delay: "0s", size: "w-1.5 h-1.5" },
+        { top: "55%", right: "15%", delay: "2s", size: "w-1 h-1" },
+        { top: "75%", left: "50%", delay: "3s", size: "w-1.5 h-1.5" },
+        { top: "30%", right: "5%", delay: "1s", size: "w-1 h-1" },
       ].map((p, i) => (
         <div
           key={i}
@@ -45,60 +44,46 @@ const Withdraw = () => {
         />
       ))}
 
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 flex flex-col items-center text-center px-6 max-w-sm w-full"
-      >
-        {/* Logo */}
-        <motion.div variants={item} className="mb-6">
-          <div className="w-20 h-20 rounded-2xl bg-secondary flex items-center justify-center mx-auto shadow-lg" style={{ boxShadow: "var(--glow-green)" }}>
-            <img src={flexooLogo} alt="Flexoo" className="w-12 h-12 object-contain" />
+      <motion.div variants={container} initial="hidden" animate="show" className="relative z-10 max-w-md mx-auto px-4 pt-5">
+        {/* Header */}
+        <motion.div variants={item} className="flex items-center gap-3 mb-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="w-11 h-11 rounded-full bg-destructive/20 flex items-center justify-center">
+            <ArrowDownToLine className="w-5 h-5 text-destructive" />
+          </div>
+          <div>
+            <p className="text-base font-bold text-foreground">Withdraw</p>
+            <p className="text-xs text-muted-foreground">
+              Balance: <span className="font-bold text-foreground">₦170,000</span>
+            </p>
           </div>
         </motion.div>
 
-        {/* Title */}
-        <motion.div variants={item} className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            Welcome to <span className="text-primary">Flexoo</span>
-          </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Join our official Telegram channel to get started with announcements, tips & exclusive offers.
-          </p>
-        </motion.div>
-
-        {/* Telegram Card */}
+        {/* Buy Code Card */}
         <motion.div
           variants={item}
-          className="w-full rounded-2xl p-5 mb-6"
+          className="rounded-2xl p-8 flex flex-col items-center text-center"
           style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
         >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-[#F5C518] flex items-center justify-center">
-              <Send className="w-6 h-6 text-background" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-semibold text-foreground">Flexoo Official</p>
-              <p className="text-xs text-muted-foreground">Telegram Channel</p>
-            </div>
+          <div className="w-16 h-16 rounded-full bg-[#F5C518] flex items-center justify-center mb-5">
+            <ShoppingCart className="w-7 h-7 text-background" />
           </div>
-          <a
-            href="https://t.me/flexooofficial"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full h-11 rounded-lg text-sm font-semibold flex items-center justify-center gap-2"
+          <p className="text-base text-muted-foreground leading-relaxed mb-6">
+            You need to buy a withdrawal code<br />before you can withdraw.
+          </p>
+          <button
+            className="h-11 px-8 rounded-lg text-sm font-semibold flex items-center gap-2"
             style={{ background: "var(--gradient-cta)", color: "hsl(150, 30%, 6%)" }}
           >
-            <Send className="w-4 h-4" />
-            Join Channel
-          </a>
+            <ShoppingCart className="w-4 h-4" />
+            Buy FPC
+          </button>
         </motion.div>
-
-        {/* Footer note */}
-        <motion.p variants={item} className="text-xs text-muted-foreground/60">
-          You must join our Telegram channel to access the platform.
-        </motion.p>
       </motion.div>
     </div>
   );
