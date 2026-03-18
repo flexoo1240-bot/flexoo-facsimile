@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import flexooLogo from "@/assets/flexoo-logo.png";
 import promoBanner1 from "@/assets/promo-banner-1.png";
 import promoBanner2 from "@/assets/promo-banner-2.png";
