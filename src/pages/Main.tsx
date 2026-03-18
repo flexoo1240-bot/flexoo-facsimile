@@ -37,6 +37,7 @@ const item = {
 const banners = [promoBanner1, promoBanner2];
 
 const Main = () => {
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
