@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Send } from "lucide-react";
+import { Send, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import flexooLogo from "@/assets/flexoo-logo.png";
 
 const container = {
@@ -24,6 +25,8 @@ const particles = [
 ];
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background px-4">
       {/* Background grid */}
@@ -117,6 +120,20 @@ const Dashboard = () => {
             <Send className="w-4 h-4" />
             Join Channel
           </a>
+
+          {/* Already joined section */}
+          <p className="text-xs text-muted-foreground/60 mt-4 mb-3">Already joined?</p>
+
+          <button
+            onClick={() => navigate("/home")}
+            className="w-full h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] border border-primary/30 text-foreground hover:bg-primary/10"
+            style={{
+              background: "var(--glass-bg)",
+            }}
+          >
+            <CheckCircle className="w-4 h-4 text-primary" />
+            I've Joined — Continue
+          </button>
         </motion.div>
 
         {/* Footer note */}
