@@ -120,6 +120,7 @@ const Main = () => {
               <span className="text-xs text-muted-foreground">ID: 813f641a</span>
             </div>
             <button
+              onClick={() => navigate("/withdraw")}
               className="h-9 px-4 rounded-lg text-xs font-semibold flex items-center gap-1.5"
               style={{ background: "var(--gradient-cta)", color: "hsl(150, 30%, 6%)" }}
             >
