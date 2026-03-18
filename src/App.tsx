@@ -11,6 +11,7 @@ import Home from "./pages/Home.tsx";
 import Main from "./pages/Main.tsx";
 import Withdraw from "./pages/Withdraw.tsx";
 import BuyCode from "./pages/BuyCode.tsx";
+import Payment from "./pages/Payment.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/main" element={<Main />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/buy-code" element={<BuyCode />} />
+          <Route path="/payment" element={<Payment />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
