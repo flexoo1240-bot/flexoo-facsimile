@@ -8,6 +8,7 @@ import Signup from "./pages/Signup.tsx";
 import Login from "./pages/Login.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Home from "./pages/Home.tsx";
+import Main from "./pages/Main.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
