@@ -150,6 +150,7 @@ const BuyCode = () => {
                   <span className="text-sm font-medium text-foreground">ndslt0245208</span>
                 </div>
                 <button
+                  onClick={() => navigate("/payment")}
                   className="w-full h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
                   style={{ background: "var(--gradient-cta)", color: "hsl(150, 30%, 6%)" }}
                 >

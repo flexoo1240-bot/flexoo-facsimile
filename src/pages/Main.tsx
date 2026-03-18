@@ -203,13 +203,14 @@ const Main = () => {
             {[
               { icon: User, label: "Profile", highlight: false, path: undefined },
               { icon: ShoppingCart, label: "Buy Code", highlight: false, path: "/buy-code" },
-              { icon: TrendingUp, label: "Earn More", highlight: true },
-              { icon: Clock, label: "History", highlight: false },
-              { icon: Headphones, label: "Support", highlight: false },
-              { icon: MessageCircle, label: "Channel", highlight: false },
-            ].map(({ icon: Icon, label, highlight }) => (
+              { icon: TrendingUp, label: "Earn More", highlight: true, path: undefined },
+              { icon: Clock, label: "History", highlight: false, path: undefined },
+              { icon: Headphones, label: "Support", highlight: false, path: undefined },
+              { icon: MessageCircle, label: "Channel", highlight: false, path: undefined },
+            ].map(({ icon: Icon, label, highlight, path }) => (
               <button
                 key={label}
+                onClick={() => path && navigate(path)}
                 className="flex flex-col items-center gap-2.5 py-4 rounded-xl transition-colors hover:bg-muted/50"
                 style={{ background: "var(--glass-bg)", border: "1px solid var(--glass-border)" }}
               >
