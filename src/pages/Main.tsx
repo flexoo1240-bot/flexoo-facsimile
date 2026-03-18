@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import flexooLogo from "@/assets/flexoo-logo.png";
 import promoBanner1 from "@/assets/promo-banner-1.png";
 import promoBanner2 from "@/assets/promo-banner-2.png";
@@ -36,6 +37,7 @@ const item = {
 const banners = [promoBanner1, promoBanner2];
 
 const Main = () => {
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -118,6 +120,7 @@ const Main = () => {
               <span className="text-xs text-muted-foreground">ID: 813f641a</span>
             </div>
             <button
+              onClick={() => navigate("/withdraw")}
               className="h-9 px-4 rounded-lg text-xs font-semibold flex items-center gap-1.5"
               style={{ background: "var(--gradient-cta)", color: "hsl(150, 30%, 6%)" }}
             >

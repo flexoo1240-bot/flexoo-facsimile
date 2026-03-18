@@ -77,6 +77,7 @@ const Withdraw = () => {
             You need to buy a withdrawal code<br />before you can withdraw.
           </p>
           <button
+            onClick={() => navigate("/buy-code")}
             className="h-11 px-8 rounded-lg text-sm font-semibold flex items-center gap-2"
             style={{ background: "var(--gradient-cta)", color: "hsl(150, 30%, 6%)" }}
           >
