@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, Shield, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import flexooLogo from "@/assets/flexoo-logo.png";
 
 const container = {
