@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, Shield, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import flexooLogo from "@/assets/flexoo-logo.png";
 
 const container = {
@@ -115,8 +116,9 @@ const Index = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3), var(--glow-green)",
           }}
         >
-          <button
-            className="w-full h-14 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg cursor-pointer"
+          <Link
+            to="/signup"
+            className="w-full h-14 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg cursor-pointer no-underline"
             style={{
               background: "var(--gradient-cta)",
               color: "hsl(150, 30%, 6%)",
@@ -124,7 +126,7 @@ const Index = () => {
           >
             Get Started
             <ArrowRight className="w-5 h-5" />
-          </button>
+          </Link>
 
           <p className="mt-4 text-sm text-muted-foreground">
             Already have an account?{" "}
