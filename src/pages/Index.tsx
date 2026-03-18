@@ -130,9 +130,9 @@ const Index = () => {
 
           <p className="mt-4 text-sm text-muted-foreground">
             Already have an account?{" "}
-            <a href="#" className="text-primary hover:underline font-medium">
+            <Link to="/login" className="text-primary hover:underline font-medium">
               Sign in
-            </a>
+            </Link>
           </p>
         </motion.div>
 
