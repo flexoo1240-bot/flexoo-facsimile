@@ -86,109 +86,107 @@ const Main = () => {
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[350px] rounded-full bg-primary/6 blur-[120px] pointer-events-none" />
 
-      <motion.div variants={container} initial="hidden" animate="show" className="relative z-10 max-w-md mx-auto px-4 pt-6">
+      <motion.div variants={container} initial="hidden" animate="show" className="relative z-10 max-w-md mx-auto px-4 pt-4">
         {/* Header */}
-        <motion.div variants={item} className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center text-sm font-bold text-primary shadow-[0_0_20px_hsla(85,80%,50%,0.08)]">
+        <motion.div variants={item} className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shadow-[0_0_16px_hsla(85,80%,50%,0.08)]">
               WL
             </div>
             <div>
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Welcome back</p>
-              <p className="text-sm font-bold text-foreground tracking-tight">weblog logs</p>
+              <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider">Welcome back</p>
+              <p className="text-[13px] font-bold text-foreground tracking-tight">weblog logs</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button className="glass-card w-9 h-9 rounded-xl flex items-center justify-center hover:bg-muted/30 transition-colors">
-              <Bell className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-1.5">
+            <button className="glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30 transition-colors">
+              <Bell className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
-            <button className="glass-card w-9 h-9 rounded-xl flex items-center justify-center hover:bg-muted/30 transition-colors">
-              <LogOut className="w-4 h-4 text-muted-foreground" />
+            <button className="glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30 transition-colors">
+              <LogOut className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           </div>
         </motion.div>
 
         {/* Wallet Card */}
-        <motion.div variants={item} className="glass-card rounded-2xl p-5 mb-4 relative overflow-hidden">
-          {/* Subtle shimmer overlay */}
-          <div className="absolute inset-0 animate-shimmer pointer-events-none rounded-2xl" />
-
+        <motion.div variants={item} className="glass-card rounded-xl p-4 mb-3 relative overflow-hidden">
+          <div className="absolute inset-0 animate-shimmer pointer-events-none rounded-xl" />
           <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Wallet className="w-3.5 h-3.5 text-primary" />
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+                <Wallet className="w-3 h-3 text-primary" />
               </div>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Wallet Balance</p>
-              <button onClick={() => setShowBalance(!showBalance)} className="ml-auto p-1 rounded-lg hover:bg-muted/30 transition-colors">
-                {showBalance ? <Eye className="w-4 h-4 text-muted-foreground" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
+              <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-widest">Wallet Balance</p>
+              <button onClick={() => setShowBalance(!showBalance)} className="ml-auto p-1 rounded-md hover:bg-muted/30 transition-colors">
+                {showBalance ? <Eye className="w-3.5 h-3.5 text-muted-foreground" /> : <EyeOff className="w-3.5 h-3.5 text-muted-foreground" />}
               </button>
             </div>
 
-            <p className="text-[32px] font-extrabold text-primary mb-1 tracking-tight leading-none">
+            <p className="text-[26px] font-extrabold text-primary mb-0.5 tracking-tight leading-none">
               {showBalance ? "₦170,000" : "••••••"}
             </p>
-            <p className="text-[10px] text-muted-foreground mb-4 font-medium">
+            <p className="text-[9px] text-muted-foreground mb-3 font-medium">
               {showBalance ? "Available for withdrawal" : "Balance hidden"}
             </p>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_6px_hsla(85,80%,50%,0.5)]" />
-                  <span className="text-[10px] font-semibold text-muted-foreground">Active</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_5px_hsla(85,80%,50%,0.5)]" />
+                  <span className="text-[9px] font-semibold text-muted-foreground">Active</span>
                 </div>
                 <span className="text-muted-foreground/30">|</span>
-                <span className="text-[10px] font-mono-app text-muted-foreground">ID: 813f641a</span>
+                <span className="text-[9px] font-mono-app text-muted-foreground">ID: 0b342d98</span>
               </div>
               <button
                 onClick={() => navigate("/withdraw")}
-                className="btn-cta h-9 px-5 rounded-xl text-xs font-bold flex items-center gap-1.5"
+                className="btn-cta h-8 px-4 rounded-lg text-[11px] font-bold flex items-center gap-1"
               >
-                <ArrowDownToLine className="w-3.5 h-3.5" /> Withdraw
+                <ArrowDownToLine className="w-3 h-3" /> Withdraw
               </button>
             </div>
           </div>
         </motion.div>
 
         {/* Referral Code Card */}
-        <motion.div variants={item} className="glass-card rounded-2xl p-4 mb-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
-            <Users className="w-4.5 h-4.5 text-primary" />
+        <motion.div variants={item} className="glass-card rounded-xl p-3 mb-3 flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center shrink-0">
+            <Users className="w-4 h-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold text-primary flex items-center gap-1 mb-0.5">
+            <p className="text-[10px] font-bold text-primary flex items-center gap-1 mb-0.5">
               🎯 Refer & Earn ₦7,000
             </p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground">
               Your code: <span className="font-mono-app font-bold text-foreground tracking-wider">{referralCode}</span>
             </p>
           </div>
           <button
             onClick={copyCode}
-            className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all hover:bg-muted/40"
+            className="flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-md transition-all hover:bg-muted/40"
             style={{ color: copied ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}
           >
-            {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <CheckCircle className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
             <span>{copied ? "Copied!" : "Copy"}</span>
           </button>
         </motion.div>
 
         {/* Promo Banner Carousel */}
-        <motion.div variants={item} className="mb-5">
-          <div className="relative rounded-2xl overflow-hidden border border-border/50">
+        <motion.div variants={item} className="mb-4">
+          <div className="relative rounded-xl overflow-hidden border border-border/50">
             <img
               src={banners[currentBanner]}
               alt="Promo banner"
-              className="w-full h-auto object-cover rounded-2xl transition-opacity duration-700"
+              className="w-full h-auto object-cover rounded-xl transition-opacity duration-700"
             />
           </div>
-          <div className="flex items-center justify-center gap-1.5 mt-3">
+          <div className="flex items-center justify-center gap-1 mt-2">
             {banners.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentBanner(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === currentBanner ? "bg-primary w-5" : "bg-muted-foreground/25 w-1.5"
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  i === currentBanner ? "bg-primary w-4" : "bg-muted-foreground/25 w-1"
                 }`}
               />
             ))}
@@ -196,40 +194,40 @@ const Main = () => {
         </motion.div>
 
         {/* Stats Row */}
-        <motion.div variants={item} className="grid grid-cols-3 gap-2.5 mb-6">
+        <motion.div variants={item} className="grid grid-cols-3 gap-2 mb-4">
           {stats.map(({ icon: Icon, label, value }) => (
-            <div key={label} className="inner-card rounded-xl p-3">
-              <div className="flex items-center gap-1 mb-2">
-                <div className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center">
-                  <Icon className="w-2.5 h-2.5 text-primary" />
+            <div key={label} className="inner-card rounded-lg p-2.5">
+              <div className="flex items-center gap-1 mb-1.5">
+                <div className="w-4 h-4 rounded bg-primary/10 flex items-center justify-center">
+                  <Icon className="w-2 h-2 text-primary" />
                 </div>
+                <p className="text-[7px] font-semibold text-muted-foreground uppercase tracking-widest">{label}</p>
               </div>
-              <p className="text-[8px] font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">{label}</p>
-              <p className="text-sm font-extrabold text-foreground tracking-tight">{value}</p>
+              <p className="text-[13px] font-extrabold text-foreground tracking-tight">{value}</p>
             </div>
           ))}
         </motion.div>
 
         {/* Quick Actions */}
         <motion.div variants={item}>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">Quick Actions</p>
-          <div className="grid grid-cols-3 gap-2.5">
+          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-2.5">Quick Actions</p>
+          <div className="grid grid-cols-3 gap-2">
             {quickActions.map(({ icon: Icon, label, highlight, path }) => (
               <button
                 key={label}
                 onClick={() => path && navigate(path)}
-                className="inner-card flex flex-col items-center gap-2.5 py-4 rounded-xl transition-all duration-200 hover:border-primary/20 hover:shadow-[0_0_20px_hsla(85,80%,50%,0.05)] active:scale-[0.97]"
+                className="inner-card flex flex-col items-center gap-2 py-3 rounded-lg transition-all duration-200 hover:border-primary/20 hover:shadow-[0_0_15px_hsla(85,80%,50%,0.05)] active:scale-[0.97]"
               >
                 <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-200"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center transition-transform duration-200"
                   style={highlight
-                    ? { background: "var(--gradient-cta)", boxShadow: "0 4px 15px hsla(85, 80%, 50%, 0.2)" }
+                    ? { background: "var(--gradient-cta)", boxShadow: "0 3px 12px hsla(85, 80%, 50%, 0.2)" }
                     : { background: "hsla(150, 30%, 18%, 0.8)" }
                   }
                 >
-                  <Icon className={`w-5 h-5 ${highlight ? "text-background" : "text-primary"}`} />
+                  <Icon className={`w-4 h-4 ${highlight ? "text-background" : "text-primary"}`} />
                 </div>
-                <span className="text-[11px] font-semibold text-muted-foreground">{label}</span>
+                <span className="text-[10px] font-semibold text-muted-foreground">{label}</span>
               </button>
             ))}
           </div>
