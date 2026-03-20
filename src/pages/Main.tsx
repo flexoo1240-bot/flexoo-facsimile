@@ -173,11 +173,11 @@ const Main = () => {
 
         {/* Promo Banner Carousel */}
         <motion.div variants={item} className="mb-4">
-          <div className="relative rounded-xl overflow-hidden border border-border/50">
+          <div className="relative rounded-lg overflow-hidden border border-border/50 h-[100px]">
             <img
               src={banners[currentBanner]}
               alt="Promo banner"
-              className="w-full h-auto object-cover rounded-xl transition-opacity duration-700"
+              className="w-full h-full object-cover rounded-lg transition-opacity duration-700"
             />
           </div>
           <div className="flex items-center justify-center gap-1 mt-2">
