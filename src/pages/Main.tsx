@@ -55,12 +55,12 @@ const Main = () => {
   };
 
   const quickActions = [
-    { icon: User, label: "Profile", highlight: false, path: undefined },
+    { icon: User, label: "Profile", highlight: false, path: "/profile" },
     { icon: ShoppingCart, label: "Buy Code", highlight: false, path: "/buy-code" },
-    { icon: TrendingUp, label: "Earn More", highlight: true, path: undefined },
-    { icon: Clock, label: "History", highlight: false, path: undefined },
-    { icon: Headphones, label: "Support", highlight: false, path: undefined },
-    { icon: MessageCircle, label: "Channel", highlight: false, path: undefined },
+    { icon: TrendingUp, label: "Earn More", highlight: true, path: "/earn-more" },
+    { icon: Clock, label: "History", highlight: false, path: "/history" },
+    { icon: Headphones, label: "Support", highlight: false, path: "/support" },
+    { icon: MessageCircle, label: "Channel", highlight: false, path: "/channel" },
   ];
 
   const stats = [
