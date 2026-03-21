@@ -302,7 +302,98 @@ const Payment = () => {
                 </button>
               </motion.div>
             </motion.div>
-          )}
+          ) : step === "success" ? (
+            /* Success Confirmation */
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="flex flex-col items-center justify-center py-12"
+            >
+              {/* Animated check circle */}
+              <div className="relative mb-6">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5, type: "spring", stiffness: 200, damping: 15 }}
+                  className="w-24 h-24 rounded-full bg-primary/15 flex items-center justify-center"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.4, duration: 0.4, type: "spring", stiffness: 250, damping: 12 }}
+                    className="w-16 h-16 rounded-full bg-primary/25 flex items-center justify-center"
+                  >
+                    <motion.svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 32 32"
+                      fill="none"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 1 }}
+                      transition={{ delay: 0.6, duration: 0.5 }}
+                    >
+                      <motion.path
+                        d="M8 16.5L13.5 22L24 11"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ delay: 0.7, duration: 0.5, ease: "easeOut" }}
+                      />
+                    </motion.svg>
+                  </motion.div>
+                </motion.div>
+                {/* Pulse ring */}
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0.6 }}
+                  animate={{ scale: 1.4, opacity: 0 }}
+                  transition={{ delay: 0.5, duration: 1.2, repeat: Infinity, repeatDelay: 0.5 }}
+                  className="absolute inset-0 w-24 h-24 rounded-full border-2 border-primary/30"
+                />
+              </div>
+
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="text-lg font-bold text-foreground mb-1"
+              >
+                Payment Submitted!
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.95 }}
+                className="text-[13px] text-muted-foreground text-center max-w-[260px] mb-8 leading-relaxed"
+              >
+                Your payment proof has been received. We'll verify it and activate your code shortly.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1 }}
+                className="w-full space-y-2.5"
+              >
+                <button
+                  onClick={() => navigate("/main")}
+                  className="btn-cta w-full h-12 rounded-xl text-sm font-bold flex items-center justify-center"
+                >
+                  Go to Dashboard
+                </button>
+                <button
+                  onClick={() => navigate("/history")}
+                  className="w-full h-11 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  View Transaction History
+                </button>
+              </motion.div>
+            </motion.div>
+          ) : null}
         </AnimatePresence>
       </div>
     </div>
