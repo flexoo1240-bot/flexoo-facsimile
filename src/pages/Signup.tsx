@@ -26,6 +26,7 @@ const item = {
 };
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
