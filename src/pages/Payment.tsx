@@ -25,7 +25,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
 };
 
-type Step = "notice" | "payment";
+type Step = "notice" | "payment" | "success";
 
 const Payment = () => {
   const navigate = useNavigate();
