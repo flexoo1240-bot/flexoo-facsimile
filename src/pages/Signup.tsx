@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, User, AtSign, Mail, Phone, Lock, Grid3X3, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import flexooLogo from "@/assets/flexoo-logo.png";
 
 const particles = [
@@ -26,6 +26,7 @@ const item = {
 };
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -91,7 +92,7 @@ const Signup = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); navigate("/main"); }}>
             {/* Full Name */}
             <FormField label="FULL NAME" icon={<User className="w-4 h-4 text-muted-foreground" />}>
               <input
