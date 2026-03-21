@@ -289,6 +289,7 @@ const Payment = () => {
                 </button>
 
                 <button
+                  onClick={() => receiptFile && setStep("success")}
                   className={`w-full h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
                     receiptFile
                       ? "btn-cta"
