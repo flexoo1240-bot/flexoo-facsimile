@@ -92,7 +92,7 @@ const Signup = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); navigate("/main"); }}>
+          <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); navigate("/dashboard"); }}>
             {/* Full Name */}
             <FormField label="FULL NAME" icon={<User className="w-4 h-4 text-muted-foreground" />}>
               <input
