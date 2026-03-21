@@ -174,7 +174,7 @@ const Payment = () => {
                 </button>
               </motion.div>
             </motion.div>
-          ) : (
+          ) : step === "payment" ? (
             /* Payment Details */
             <motion.div
               key="payment"
