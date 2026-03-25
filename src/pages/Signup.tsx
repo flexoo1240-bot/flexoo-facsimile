@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, User, AtSign, Mail, Phone, Lock, Grid3X3, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import flexooLogo from "@/assets/flexoo-logo.png";
 
 const particles = [
@@ -33,7 +35,9 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="relative min-h-screen flex flex-col items-center overflow-hidden bg-background px-4 py-8">
@@ -98,7 +102,7 @@ const Signup = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => {
+          <form className="space-y-5" onSubmit={async (e) => {
             e.preventDefault();
             setError("");
             if (!fullName.trim() || !username.trim() || !email.trim() || !phone.trim() || !password.trim()) {
@@ -109,7 +113,37 @@ const Signup = () => {
               setError("Password must be at least 6 characters.");
               return;
             }
-            navigate("/dashboard");
+            setLoading(true);
+            try {
+              const { data, error: signUpError } = await supabase.auth.signUp({
+                email: email.trim(),
+                password,
+                options: {
+                  data: {
+                    full_name: fullName.trim(),
+                    username: username.trim(),
+                    phone: phone.trim(),
+                  },
+                },
+              });
+              if (signUpError) {
+                setError(signUpError.message);
+                return;
+              }
+              // Process referral if code was provided
+              if (referralCode.trim() && data.user) {
+                await supabase.rpc("process_referral", {
+                  referrer_code: referralCode.trim().toUpperCase(),
+                  new_user_id: data.user.id,
+                });
+              }
+              toast.success("Account created successfully!");
+              navigate("/dashboard");
+            } catch (err: any) {
+              setError(err.message || "Something went wrong.");
+            } finally {
+              setLoading(false);
+            }
           }}>
             {error && (
               <p className="text-sm text-destructive font-medium">{error}</p>
@@ -186,8 +220,10 @@ const Signup = () => {
             <FormField label="REFERRAL CODE (OPTIONAL)" icon={<Grid3X3 className="w-4 h-4 text-muted-foreground" />}>
               <input
                 type="text"
-                placeholder="e.g. FLEXOO2026"
+                placeholder="e.g. FLEXAB1234"
                 className="signup-input"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
               />
             </FormField>
 
@@ -202,13 +238,14 @@ const Signup = () => {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full h-12 rounded-xl font-semibold text-base flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg cursor-pointer"
+              disabled={loading}
+              className="w-full h-12 rounded-xl font-semibold text-base flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: "var(--gradient-cta)",
                 color: "hsl(150, 30%, 6%)",
               }}
             >
-              Create Account
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
         </motion.div>

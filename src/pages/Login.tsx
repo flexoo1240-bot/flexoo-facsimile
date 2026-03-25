@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import flexooLogo from "@/assets/flexoo-logo.png";
 
 const particles = [
@@ -31,6 +33,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background px-4">
@@ -92,7 +95,7 @@ const Login = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => {
+          <form className="space-y-5" onSubmit={async (e) => {
             e.preventDefault();
             setError("");
             if (!email.trim() || !password.trim()) {
@@ -103,7 +106,23 @@ const Login = () => {
               setError("Password must be at least 6 characters.");
               return;
             }
-            navigate("/dashboard");
+            setLoading(true);
+            try {
+              const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: email.trim(),
+                password,
+              });
+              if (signInError) {
+                setError(signInError.message);
+                return;
+              }
+              toast.success("Signed in successfully!");
+              navigate("/dashboard");
+            } catch (err: any) {
+              setError(err.message || "Something went wrong.");
+            } finally {
+              setLoading(false);
+            }
           }}>
             {error && (
               <p className="text-sm text-destructive font-medium">{error}</p>
@@ -159,13 +178,14 @@ const Login = () => {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full h-12 rounded-xl font-semibold text-base flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg cursor-pointer"
+              disabled={loading}
+              className="w-full h-12 rounded-xl font-semibold text-base flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: "var(--gradient-cta)",
                 color: "hsl(150, 30%, 6%)",
               }}
             >
-              Sign in
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
         </motion.div>

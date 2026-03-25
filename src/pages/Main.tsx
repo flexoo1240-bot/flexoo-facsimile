@@ -19,6 +19,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import flexooLogo from "@/assets/flexoo-logo.png";
 import promoBanner1 from "@/assets/promo-banner-1.png";
 import promoBanner2 from "@/assets/promo-banner-2.png";
@@ -36,6 +38,13 @@ const banners = [promoBanner1, promoBanner2];
 
 const Main = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
   const [copied, setCopied] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
@@ -102,7 +111,7 @@ const Main = () => {
             <button className="glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30 transition-colors">
               <Bell className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
-            <button className="glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30 transition-colors">
+            <button onClick={handleLogout} className="glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30 transition-colors">
               <LogOut className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           </div>
