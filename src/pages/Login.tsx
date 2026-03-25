@@ -92,7 +92,23 @@ const Login = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-5" onSubmit={(e) => {
+            e.preventDefault();
+            setError("");
+            if (!email.trim() || !password.trim()) {
+              setError("Please fill in all fields.");
+              return;
+            }
+            if (password.length < 6) {
+              setError("Password must be at least 6 characters.");
+              return;
+            }
+            navigate("/dashboard");
+          }}>
+            {error && (
+              <p className="text-sm text-destructive font-medium">{error}</p>
+            )}
+
             {/* Email */}
             <div>
               <label className="block text-[11px] font-semibold tracking-wider text-muted-foreground mb-1.5 uppercase">
@@ -106,6 +122,9 @@ const Login = () => {
                   type="email"
                   placeholder="you@example.com"
                   className="signup-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
             </div>
