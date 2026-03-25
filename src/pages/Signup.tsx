@@ -111,12 +111,19 @@ const Signup = () => {
             }
             navigate("/dashboard");
           }}>
+            {error && (
+              <p className="text-sm text-destructive font-medium">{error}</p>
+            )}
+
             {/* Full Name */}
             <FormField label="FULL NAME" icon={<User className="w-4 h-4 text-muted-foreground" />}>
               <input
                 type="text"
                 placeholder="Enter your full name"
                 className="signup-input"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
               />
             </FormField>
 
@@ -126,6 +133,9 @@ const Signup = () => {
                 type="text"
                 placeholder="Only lowercase letters, numbers & _"
                 className="signup-input"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
               />
             </FormField>
 
@@ -135,6 +145,9 @@ const Signup = () => {
                 type="email"
                 placeholder="you@example.com"
                 className="signup-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </FormField>
 
@@ -144,6 +157,9 @@ const Signup = () => {
                 type="tel"
                 placeholder="e.g. 08012345678"
                 className="signup-input"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
               />
             </FormField>
 
@@ -153,6 +169,9 @@ const Signup = () => {
                 type={showPassword ? "text" : "password"}
                 placeholder="Min 6 characters"
                 className="signup-input pr-10"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <button
                 type="button"
