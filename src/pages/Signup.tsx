@@ -28,6 +28,12 @@ const item = {
 const Signup = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   return (
     <div className="relative min-h-screen flex flex-col items-center overflow-hidden bg-background px-4 py-8">
@@ -92,13 +98,32 @@ const Signup = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); navigate("/dashboard"); }}>
+          <form className="space-y-5" onSubmit={(e) => {
+            e.preventDefault();
+            setError("");
+            if (!fullName.trim() || !username.trim() || !email.trim() || !phone.trim() || !password.trim()) {
+              setError("Please fill in all required fields.");
+              return;
+            }
+            if (password.length < 6) {
+              setError("Password must be at least 6 characters.");
+              return;
+            }
+            navigate("/dashboard");
+          }}>
+            {error && (
+              <p className="text-sm text-destructive font-medium">{error}</p>
+            )}
+
             {/* Full Name */}
             <FormField label="FULL NAME" icon={<User className="w-4 h-4 text-muted-foreground" />}>
               <input
                 type="text"
                 placeholder="Enter your full name"
                 className="signup-input"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
               />
             </FormField>
 
@@ -108,6 +133,9 @@ const Signup = () => {
                 type="text"
                 placeholder="Only lowercase letters, numbers & _"
                 className="signup-input"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
               />
             </FormField>
 
@@ -117,6 +145,9 @@ const Signup = () => {
                 type="email"
                 placeholder="you@example.com"
                 className="signup-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </FormField>
 
@@ -126,6 +157,9 @@ const Signup = () => {
                 type="tel"
                 placeholder="e.g. 08012345678"
                 className="signup-input"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
               />
             </FormField>
 
@@ -135,6 +169,9 @@ const Signup = () => {
                 type={showPassword ? "text" : "password"}
                 placeholder="Min 6 characters"
                 className="signup-input pr-10"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <button
                 type="button"
