@@ -26,7 +26,11 @@ const item = {
 };
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background px-4">
