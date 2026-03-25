@@ -102,7 +102,7 @@ const Signup = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => {
+          <form className="space-y-5" onSubmit={async (e) => {
             e.preventDefault();
             setError("");
             if (!fullName.trim() || !username.trim() || !email.trim() || !phone.trim() || !password.trim()) {
@@ -113,7 +113,37 @@ const Signup = () => {
               setError("Password must be at least 6 characters.");
               return;
             }
-            navigate("/dashboard");
+            setLoading(true);
+            try {
+              const { data, error: signUpError } = await supabase.auth.signUp({
+                email: email.trim(),
+                password,
+                options: {
+                  data: {
+                    full_name: fullName.trim(),
+                    username: username.trim(),
+                    phone: phone.trim(),
+                  },
+                },
+              });
+              if (signUpError) {
+                setError(signUpError.message);
+                return;
+              }
+              // Process referral if code was provided
+              if (referralCode.trim() && data.user) {
+                await supabase.rpc("process_referral", {
+                  referrer_code: referralCode.trim().toUpperCase(),
+                  new_user_id: data.user.id,
+                });
+              }
+              toast.success("Account created successfully!");
+              navigate("/dashboard");
+            } catch (err: any) {
+              setError(err.message || "Something went wrong.");
+            } finally {
+              setLoading(false);
+            }
           }}>
             {error && (
               <p className="text-sm text-destructive font-medium">{error}</p>
