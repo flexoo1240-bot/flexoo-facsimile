@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import flexooLogo from "@/assets/flexoo-logo.png";
 
 const particles = [
@@ -26,7 +26,11 @@ const item = {
 };
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background px-4">
@@ -88,7 +92,23 @@ const Login = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-5" onSubmit={(e) => {
+            e.preventDefault();
+            setError("");
+            if (!email.trim() || !password.trim()) {
+              setError("Please fill in all fields.");
+              return;
+            }
+            if (password.length < 6) {
+              setError("Password must be at least 6 characters.");
+              return;
+            }
+            navigate("/dashboard");
+          }}>
+            {error && (
+              <p className="text-sm text-destructive font-medium">{error}</p>
+            )}
+
             {/* Email */}
             <div>
               <label className="block text-[11px] font-semibold tracking-wider text-muted-foreground mb-1.5 uppercase">
@@ -102,6 +122,9 @@ const Login = () => {
                   type="email"
                   placeholder="you@example.com"
                   className="signup-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
             </div>
@@ -119,6 +142,9 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   className="signup-input pr-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <button
                   type="button"
