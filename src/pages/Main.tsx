@@ -38,6 +38,13 @@ const banners = [promoBanner1, promoBanner2];
 
 const Main = () => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success("Logged out successfully");
+    navigate("/");
+  };
   const [copied, setCopied] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
