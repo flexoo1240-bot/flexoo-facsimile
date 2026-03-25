@@ -178,13 +178,14 @@ const Login = () => {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full h-12 rounded-xl font-semibold text-base flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg cursor-pointer"
+              disabled={loading}
+              className="w-full h-12 rounded-xl font-semibold text-base flex items-center justify-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: "var(--gradient-cta)",
                 color: "hsl(150, 30%, 6%)",
               }}
             >
-              Sign in
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
         </motion.div>
