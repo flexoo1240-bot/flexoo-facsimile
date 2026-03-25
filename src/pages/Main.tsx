@@ -111,7 +111,7 @@ const Main = () => {
             <button className="glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30 transition-colors">
               <Bell className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
-            <button className="glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30 transition-colors">
+            <button onClick={handleLogout} className="glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30 transition-colors">
               <LogOut className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           </div>
