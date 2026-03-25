@@ -98,7 +98,19 @@ const Signup = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); navigate("/dashboard"); }}>
+          <form className="space-y-5" onSubmit={(e) => {
+            e.preventDefault();
+            setError("");
+            if (!fullName.trim() || !username.trim() || !email.trim() || !phone.trim() || !password.trim()) {
+              setError("Please fill in all required fields.");
+              return;
+            }
+            if (password.length < 6) {
+              setError("Password must be at least 6 characters.");
+              return;
+            }
+            navigate("/dashboard");
+          }}>
             {/* Full Name */}
             <FormField label="FULL NAME" icon={<User className="w-4 h-4 text-muted-foreground" />}>
               <input
