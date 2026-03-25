@@ -95,7 +95,7 @@ const Login = () => {
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <form className="space-y-5" onSubmit={(e) => {
+          <form className="space-y-5" onSubmit={async (e) => {
             e.preventDefault();
             setError("");
             if (!email.trim() || !password.trim()) {
@@ -106,7 +106,23 @@ const Login = () => {
               setError("Password must be at least 6 characters.");
               return;
             }
-            navigate("/dashboard");
+            setLoading(true);
+            try {
+              const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: email.trim(),
+                password,
+              });
+              if (signInError) {
+                setError(signInError.message);
+                return;
+              }
+              toast.success("Signed in successfully!");
+              navigate("/dashboard");
+            } catch (err: any) {
+              setError(err.message || "Something went wrong.");
+            } finally {
+              setLoading(false);
+            }
           }}>
             {error && (
               <p className="text-sm text-destructive font-medium">{error}</p>
