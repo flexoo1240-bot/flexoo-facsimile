@@ -220,8 +220,10 @@ const Signup = () => {
             <FormField label="REFERRAL CODE (OPTIONAL)" icon={<Grid3X3 className="w-4 h-4 text-muted-foreground" />}>
               <input
                 type="text"
-                placeholder="e.g. FLEXOO2026"
+                placeholder="e.g. FLEXAB1234"
                 className="signup-input"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
               />
             </FormField>
 
