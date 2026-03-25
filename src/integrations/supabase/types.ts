@@ -14,13 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          bonus_balance: number
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          referral_code: string | null
+          referred_by: string | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          bonus_balance?: number
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string
+        }
+        Update: {
+          bonus_balance?: number
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_referral_code: { Args: never; Returns: string }
+      process_referral: {
+        Args: { new_user_id: string; referrer_code: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
