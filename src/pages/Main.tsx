@@ -89,7 +89,7 @@ const Main = () => {
   ];
 
   const stats = [
-    { icon: Sparkles, label: "TOTAL EARNED", value: "₦170,000" },
+    { icon: Sparkles, label: "TOTAL EARNED", value: balanceDisplay },
     { icon: Users, label: "REFERRALS", value: "0" },
     { icon: Sparkles, label: "REF EARNED", value: "₦0" },
   ];
