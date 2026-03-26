@@ -69,18 +69,6 @@ const SpinAndEarn = () => {
 
       // Credit the user's balance
       if (user) {
-        const { error } = await supabase.rpc("process_referral", {
-          referrer_code: "__SPIN__",
-          new_user_id: user.id,
-        }).then(() => ({ error: null })).catch(() => ({ error: true }));
-
-        // Direct update instead
-        await supabase
-          .from("profiles")
-          .update({ bonus_balance: undefined as any })
-          .eq("user_id", user.id);
-
-        // Use raw SQL via edge function or just update balance
         const { data: profile } = await supabase
           .from("profiles")
           .select("bonus_balance")
