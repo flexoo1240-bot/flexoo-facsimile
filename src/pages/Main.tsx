@@ -39,7 +39,7 @@ const banners = [promoBanner1, promoBanner2];
 
 const Main = () => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
@@ -49,7 +49,22 @@ const Main = () => {
   const [copied, setCopied] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
-  const referralCode = "FLEXO5BDAC8";
+  const [profile, setProfile] = useState<{ referral_code: string; bonus_balance: number; full_name: string; username: string } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("referral_code, bonus_balance, full_name, username")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setProfile(data);
+      });
+  }, [user]);
+
+  const referralCode = profile?.referral_code || "Loading...";
+  const balanceDisplay = profile ? `₦${profile.bonus_balance.toLocaleString()}` : "₦0";
 
   useEffect(() => {
     const interval = setInterval(() => {
