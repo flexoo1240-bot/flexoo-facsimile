@@ -10,6 +10,7 @@ import {
   Users,
   Copy,
   CheckCircle,
+  Share2,
   User,
   ShoppingCart,
   TrendingUp,
