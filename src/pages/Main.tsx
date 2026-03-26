@@ -148,7 +148,7 @@ const Main = () => {
             </div>
 
             <p className="text-[26px] font-extrabold text-primary mb-0.5 tracking-tight leading-none">
-              {showBalance ? "₦170,000" : "••••••"}
+              {showBalance ? balanceDisplay : "••••••"}
             </p>
             <p className="text-[9px] text-muted-foreground mb-3 font-medium">
               {showBalance ? "Available for withdrawal" : "Balance hidden"}
