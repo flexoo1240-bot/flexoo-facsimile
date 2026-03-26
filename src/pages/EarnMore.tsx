@@ -28,7 +28,7 @@ const EarnMore = () => {
         </div>
 
         <div className="space-y-2.5">
-          {methods.map(({ icon: Icon, title, desc, cta }) => (
+          {methods.map(({ icon: Icon, title, desc, cta, action }) => (
             <div key={title} className="glass-card rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: "var(--gradient-cta)", boxShadow: "0 3px 12px hsla(85, 80%, 50%, 0.2)" }}>
@@ -39,7 +39,7 @@ const EarnMore = () => {
                   <p className="text-[10px] text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
               </div>
-              <button className="btn-cta w-full h-8 rounded-lg text-[11px] font-bold mt-3">{cta}</button>
+              <button onClick={action} className="btn-cta w-full h-8 rounded-lg text-[11px] font-bold mt-3">{cta}</button>
             </div>
           ))}
         </div>
