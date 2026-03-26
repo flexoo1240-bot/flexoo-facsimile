@@ -6,10 +6,10 @@ const EarnMore = () => {
   const navigate = useNavigate();
 
   const methods = [
-    { icon: Users, title: "Refer Friends", desc: "Earn ₦7,000 for every friend that joins using your referral code.", cta: "Share Code" },
-    { icon: Star, title: "Daily Tasks", desc: "Complete simple daily tasks to earn bonus rewards.", cta: "View Tasks" },
-    { icon: Gift, title: "Spin & Win", desc: "Spin the wheel daily for a chance to win up to ₦50,000.", cta: "Spin Now" },
-    { icon: Zap, title: "Level Up", desc: "Upgrade your account tier to unlock higher earning potential.", cta: "Upgrade" },
+    { icon: Users, title: "Refer Friends", desc: "Earn ₦7,000 for every friend that joins using your referral code.", cta: "Share Code", action: () => navigate("/main") },
+    { icon: Star, title: "Daily Tasks", desc: "Complete simple daily tasks to earn bonus rewards.", cta: "View Tasks", action: undefined },
+    { icon: Gift, title: "Spin & Win", desc: "Spin the wheel daily for a chance to win up to ₦10,000.", cta: "Spin Now", action: () => navigate("/spin") },
+    { icon: Zap, title: "Level Up", desc: "Upgrade your account tier to unlock higher earning potential.", cta: "Upgrade", action: undefined },
   ];
 
   return (
@@ -28,7 +28,7 @@ const EarnMore = () => {
         </div>
 
         <div className="space-y-2.5">
-          {methods.map(({ icon: Icon, title, desc, cta }) => (
+          {methods.map(({ icon: Icon, title, desc, cta, action }) => (
             <div key={title} className="glass-card rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: "var(--gradient-cta)", boxShadow: "0 3px 12px hsla(85, 80%, 50%, 0.2)" }}>
@@ -39,7 +39,7 @@ const EarnMore = () => {
                   <p className="text-[10px] text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
               </div>
-              <button className="btn-cta w-full h-8 rounded-lg text-[11px] font-bold mt-3">{cta}</button>
+              <button onClick={action} className="btn-cta w-full h-8 rounded-lg text-[11px] font-bold mt-3">{cta}</button>
             </div>
           ))}
         </div>

@@ -12,6 +12,7 @@ import Home from "./pages/Home.tsx";
 import Main from "./pages/Main.tsx";
 import Profile from "./pages/Profile.tsx";
 import EarnMore from "./pages/EarnMore.tsx";
+import SpinAndEarn from "./pages/SpinAndEarn.tsx";
 import History from "./pages/History.tsx";
 import Support from "./pages/Support.tsx";
 import Channel from "./pages/Channel.tsx";
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/main" element={<Main />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/earn-more" element={<EarnMore />} />
+            <Route path="/spin" element={<SpinAndEarn />} />
             <Route path="/history" element={<History />} />
             <Route path="/support" element={<Support />} />
             <Route path="/channel" element={<Channel />} />
