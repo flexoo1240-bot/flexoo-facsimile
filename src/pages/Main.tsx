@@ -186,14 +186,35 @@ const Main = () => {
               Your code: <span className="font-mono-app font-bold text-foreground tracking-wider">{referralCode}</span>
             </p>
           </div>
-          <button
-            onClick={copyCode}
-            className="flex items-center gap-1 text-[10px] font-semibold px-2.5 py-1 rounded-md transition-all hover:bg-muted/40"
-            style={{ color: copied ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}
-          >
-            {copied ? <CheckCircle className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            <span>{copied ? "Copied!" : "Copy"}</span>
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={copyCode}
+              className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md transition-all hover:bg-muted/40"
+              style={{ color: copied ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}
+            >
+              {copied ? <CheckCircle className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              <span>{copied ? "Copied!" : "Copy"}</span>
+            </button>
+            <button
+              onClick={() => {
+                const shareData = {
+                  title: "Join Flexoo!",
+                  text: `Sign up on Flexoo with my referral code ${referralCode} and earn ₦170,000 bonus!`,
+                  url: `${window.location.origin}/signup?ref=${referralCode}`,
+                };
+                if (navigator.share) {
+                  navigator.share(shareData).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(shareData.url);
+                  toast.success("Referral link copied!");
+                }
+              }}
+              className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-md transition-all hover:bg-muted/40 text-muted-foreground"
+            >
+              <Share2 className="w-3 h-3" />
+              <span>Share</span>
+            </button>
+          </div>
         </motion.div>
 
         {/* Promo Banner Carousel */}
