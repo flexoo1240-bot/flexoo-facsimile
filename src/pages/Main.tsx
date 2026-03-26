@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import flexooLogo from "@/assets/flexoo-logo.png";
 import promoBanner1 from "@/assets/promo-banner-1.png";
