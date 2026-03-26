@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import flexooLogo from "@/assets/flexoo-logo.png";
 import promoBanner1 from "@/assets/promo-banner-1.png";
@@ -38,7 +39,7 @@ const banners = [promoBanner1, promoBanner2];
 
 const Main = () => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
@@ -48,7 +49,22 @@ const Main = () => {
   const [copied, setCopied] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
-  const referralCode = "FLEXO5BDAC8";
+  const [profile, setProfile] = useState<{ referral_code: string; bonus_balance: number; full_name: string; username: string } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("referral_code, bonus_balance, full_name, username")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setProfile(data);
+      });
+  }, [user]);
+
+  const referralCode = profile?.referral_code || "Loading...";
+  const balanceDisplay = profile ? `₦${profile.bonus_balance.toLocaleString()}` : "₦0";
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -73,7 +89,7 @@ const Main = () => {
   ];
 
   const stats = [
-    { icon: Sparkles, label: "TOTAL EARNED", value: "₦170,000" },
+    { icon: Sparkles, label: "TOTAL EARNED", value: balanceDisplay },
     { icon: Users, label: "REFERRALS", value: "0" },
     { icon: Sparkles, label: "REF EARNED", value: "₦0" },
   ];
@@ -100,11 +116,11 @@ const Main = () => {
         <motion.div variants={item} className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shadow-[0_0_16px_hsla(85,80%,50%,0.08)]">
-              WL
+              {profile?.full_name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "U"}
             </div>
             <div>
               <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider">Welcome back</p>
-              <p className="text-[13px] font-bold text-foreground tracking-tight">weblog logs</p>
+              <p className="text-[13px] font-bold text-foreground tracking-tight">{profile?.full_name || "User"}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
@@ -132,7 +148,7 @@ const Main = () => {
             </div>
 
             <p className="text-[26px] font-extrabold text-primary mb-0.5 tracking-tight leading-none">
-              {showBalance ? "₦170,000" : "••••••"}
+              {showBalance ? balanceDisplay : "••••••"}
             </p>
             <p className="text-[9px] text-muted-foreground mb-3 font-medium">
               {showBalance ? "Available for withdrawal" : "Balance hidden"}
