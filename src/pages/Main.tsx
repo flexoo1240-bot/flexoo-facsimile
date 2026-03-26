@@ -116,11 +116,11 @@ const Main = () => {
         <motion.div variants={item} className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-full bg-primary/15 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary shadow-[0_0_16px_hsla(85,80%,50%,0.08)]">
-              WL
+              {profile?.full_name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "U"}
             </div>
             <div>
               <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-wider">Welcome back</p>
-              <p className="text-[13px] font-bold text-foreground tracking-tight">weblog logs</p>
+              <p className="text-[13px] font-bold text-foreground tracking-tight">{profile?.full_name || "User"}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
