@@ -156,6 +156,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_update_withdrawal: {
+        Args: {
+          admin_user_id: string
+          new_status: string
+          withdrawal_id: string
+        }
+        Returns: undefined
+      }
       generate_referral_code: { Args: never; Returns: string }
       process_referral: {
         Args: { new_user_id: string; referrer_code: string }
