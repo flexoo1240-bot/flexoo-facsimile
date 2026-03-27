@@ -75,13 +75,21 @@ const Withdraw = () => {
           <p className="text-[15px] text-muted-foreground leading-relaxed mb-6">
             You need to buy a withdrawal code<br />before you can withdraw.
           </p>
-          <button
-            onClick={() => navigate("/buy-code")}
-            className="btn-cta h-11 px-8 rounded-xl text-sm flex items-center gap-2"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            Buy FPC
-          </button>
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={() => navigate("/buy-code")}
+              className="btn-cta h-11 px-6 rounded-xl text-sm flex items-center gap-2 flex-1"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Buy FPC
+            </button>
+            <button
+              onClick={() => navigate("/withdraw-request")}
+              className="h-11 px-6 rounded-xl text-sm flex items-center gap-2 flex-1 border border-primary/30 text-primary font-semibold hover:bg-primary/10 transition-colors"
+            >
+              Request Withdrawal
+            </button>
+          </div>
         </motion.div>
       </motion.div>
     </div>

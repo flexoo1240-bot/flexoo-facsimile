@@ -14,15 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_tasks: {
+        Row: {
+          completed_at: string
+          id: string
+          points_earned: number
+          task_type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          points_earned?: number
+          task_type: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          points_earned?: number
+          task_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bonus_balance: number
           created_at: string
           full_name: string
           id: string
+          level: string
           phone: string | null
           referral_code: string | null
           referred_by: string | null
+          total_tasks_completed: number
           updated_at: string
           user_id: string
           username: string
@@ -32,9 +58,11 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          level?: string
           phone?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          total_tasks_completed?: number
           updated_at?: string
           user_id: string
           username?: string
@@ -44,9 +72,11 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          level?: string
           phone?: string | null
           referral_code?: string | null
           referred_by?: string | null
+          total_tasks_completed?: number
           updated_at?: string
           user_id?: string
           username?: string
@@ -60,6 +90,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      spin_history: {
+        Row: {
+          amount: number
+          id: string
+          spun_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          id?: string
+          spun_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          id?: string
+          spun_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawal_requests: {
+        Row: {
+          account_name: string
+          account_number: string
+          amount: number
+          bank_name: string
+          bvn: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          amount: number
+          bank_name: string
+          bvn: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          amount?: number
+          bank_name?: string
+          bvn?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

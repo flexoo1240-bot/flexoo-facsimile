@@ -7,9 +7,9 @@ const EarnMore = () => {
 
   const methods = [
     { icon: Users, title: "Refer Friends", desc: "Earn ₦7,000 for every friend that joins using your referral code.", cta: "Share Code", action: () => navigate("/main") },
-    { icon: Star, title: "Daily Tasks", desc: "Complete simple daily tasks to earn bonus rewards.", cta: "View Tasks", action: undefined },
+    { icon: Star, title: "Daily Tasks", desc: "Complete simple daily tasks to earn bonus rewards.", cta: "View Tasks", action: () => navigate("/daily-tasks") },
     { icon: Gift, title: "Spin & Win", desc: "Spin the wheel daily for a chance to win up to ₦10,000.", cta: "Spin Now", action: () => navigate("/spin") },
-    { icon: Zap, title: "Level Up", desc: "Upgrade your account tier to unlock higher earning potential.", cta: "Upgrade", action: undefined },
+    { icon: Zap, title: "Level Up", desc: "Complete daily tasks to level up from Bronze → Silver → Gold.", cta: "View Progress", action: () => navigate("/daily-tasks") },
   ];
 
   return (

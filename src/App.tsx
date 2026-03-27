@@ -17,6 +17,8 @@ import History from "./pages/History.tsx";
 import Support from "./pages/Support.tsx";
 import Channel from "./pages/Channel.tsx";
 import Withdraw from "./pages/Withdraw.tsx";
+import WithdrawRequest from "./pages/WithdrawRequest.tsx";
+import DailyTasks from "./pages/DailyTasks.tsx";
 import BuyCode from "./pages/BuyCode.tsx";
 import Payment from "./pages/Payment.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/support" element={<Support />} />
             <Route path="/channel" element={<Channel />} />
             <Route path="/withdraw" element={<Withdraw />} />
+            <Route path="/withdraw-request" element={<WithdrawRequest />} />
+            <Route path="/daily-tasks" element={<DailyTasks />} />
             <Route path="/buy-code" element={<BuyCode />} />
             <Route path="/payment" element={<Payment />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
