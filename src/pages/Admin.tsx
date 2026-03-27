@@ -40,20 +40,21 @@ const Admin = () => {
     fetchRequests();
   }, [filter]);
 
-  const handleAction = async (id: string, action: "approved" | "rejected", req: WithdrawalRequest) => {
+  const handleAction = async (id: string, action: "approved" | "rejected") => {
     setProcessing(id);
     
-    // If rejecting, refund the balance
-    if (action === "rejected") {
-      const { data: profile } = await supabase.from("profiles").select("bonus_balance").eq("user_id", req.user_id).single();
-      if (profile) {
-        await supabase.from("profiles").update({ bonus_balance: profile.bonus_balance + req.amount }).eq("user_id", req.user_id);
-      }
-    }
+    const { error } = await supabase.rpc("admin_update_withdrawal", {
+      withdrawal_id: id,
+      new_status: action,
+      admin_user_id: user?.id || "",
+    });
 
-    // We can't update via client due to RLS, so we'll use an edge function
-    // For now, show a toast - we need a migration to allow admin updates
-    toast.success(`Request ${action}!`);
+    if (error) {
+      toast.error(error.message || "Failed to process request");
+    } else {
+      toast.success(`Request ${action}!`);
+    }
+    
     setProcessing(null);
     fetchRequests();
   };
