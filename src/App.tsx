@@ -17,6 +17,8 @@ import History from "./pages/History.tsx";
 import Support from "./pages/Support.tsx";
 import Channel from "./pages/Channel.tsx";
 import Withdraw from "./pages/Withdraw.tsx";
+import WithdrawRequest from "./pages/WithdrawRequest.tsx";
+import DailyTasks from "./pages/DailyTasks.tsx";
 import BuyCode from "./pages/BuyCode.tsx";
 import Payment from "./pages/Payment.tsx";
 import NotFound from "./pages/NotFound.tsx";
