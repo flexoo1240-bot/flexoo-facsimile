@@ -158,7 +158,7 @@ const Admin = () => {
                 {req.status === "pending" && (
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleAction(req.id, "approved", req)}
+                      onClick={() => handleAction(req.id, "approved")}
                       disabled={processing === req.id}
                       className="btn-cta flex-1 h-9 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50"
                     >
