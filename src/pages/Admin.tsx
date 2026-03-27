@@ -165,7 +165,7 @@ const Admin = () => {
                       <CheckCircle className="w-3.5 h-3.5" /> Approve
                     </button>
                     <button
-                      onClick={() => handleAction(req.id, "rejected", req)}
+                      onClick={() => handleAction(req.id, "rejected")}
                       disabled={processing === req.id}
                       className="btn-danger flex-1 h-9 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50"
                     >
