@@ -21,6 +21,7 @@ import WithdrawRequest from "./pages/WithdrawRequest.tsx";
 import DailyTasks from "./pages/DailyTasks.tsx";
 import BuyCode from "./pages/BuyCode.tsx";
 import Payment from "./pages/Payment.tsx";
+import Admin from "./pages/Admin.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
