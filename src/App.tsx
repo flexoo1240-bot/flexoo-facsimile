@@ -46,6 +46,8 @@ const App = () => (
             <Route path="/support" element={<Support />} />
             <Route path="/channel" element={<Channel />} />
             <Route path="/withdraw" element={<Withdraw />} />
+            <Route path="/withdraw-request" element={<WithdrawRequest />} />
+            <Route path="/daily-tasks" element={<DailyTasks />} />
             <Route path="/buy-code" element={<BuyCode />} />
             <Route path="/payment" element={<Payment />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
