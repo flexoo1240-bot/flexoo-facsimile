@@ -204,8 +204,8 @@ const Payment = () => {
                 <div className="space-y-2.5 mb-5">
                   {[
                     { icon: Landmark, label: "BANK", value: "Moniepoint MFB", copyVal: "Moniepoint MFB" },
-                    { icon: CreditCard, label: "ACCOUNT NUMBER", value: "5240391212", copyVal: "5240391212", mono: true },
-                    { icon: User, label: "ACCOUNT NAME", value: "VICTOR OBINNA EMEKA", copyVal: "VICTOR OBINNA EMEKA" },
+                    { icon: CreditCard, label: "ACCOUNT NUMBER", value: "8137498802", copyVal: "8137498802", mono: true },
+                    { icon: User, label: "ACCOUNT NAME", value: "FLEXOO DIGITAL SERVICES", copyVal: "FLEXOO DIGITAL SERVICES" },
                   ].map(({ icon: Icon, label, value, copyVal, mono }) => (
                     <motion.div
                       key={label}
