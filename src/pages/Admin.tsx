@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -22,6 +23,7 @@ interface WithdrawalRequest {
 const Admin = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isAdmin, loading: roleLoading } = useAdminCheck();
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
@@ -69,6 +71,29 @@ const Admin = () => {
     s === "pending" ? "text-yellow-400 bg-yellow-400/10" : s === "approved" ? "text-primary bg-primary/10" : "text-destructive bg-destructive/10";
 
   const filters = ["all", "pending", "approved", "rejected"] as const;
+
+  if (roleLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground text-sm">Checking access...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl p-8 text-center max-w-sm w-full">
+          <Lock className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <h1 className="text-lg font-bold text-foreground mb-2">Access Denied</h1>
+          <p className="text-sm text-muted-foreground mb-6">You don't have admin privileges to access this panel.</p>
+          <button onClick={() => navigate("/main")} className="btn-cta w-full h-10 rounded-xl text-sm font-bold">
+            Go to Dashboard
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-background pb-10">
