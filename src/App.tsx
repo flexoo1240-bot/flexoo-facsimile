@@ -23,6 +23,7 @@ import BuyCode from "./pages/BuyCode.tsx";
 import Payment from "./pages/Payment.tsx";
 import Admin from "./pages/Admin.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
 const queryClient = new QueryClient();
 
@@ -37,21 +38,21 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/main" element={<Main />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/earn-more" element={<EarnMore />} />
-            <Route path="/spin" element={<SpinAndEarn />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/support" element={<Support />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/main" element={<ProtectedRoute><Main /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/earn-more" element={<ProtectedRoute><EarnMore /></ProtectedRoute>} />
+            <Route path="/spin" element={<ProtectedRoute><SpinAndEarn /></ProtectedRoute>} />
+            <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+            <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
             <Route path="/channel" element={<Channel />} />
-            <Route path="/withdraw" element={<Withdraw />} />
-            <Route path="/withdraw-request" element={<WithdrawRequest />} />
-            <Route path="/daily-tasks" element={<DailyTasks />} />
-            <Route path="/buy-code" element={<BuyCode />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
+            <Route path="/withdraw-request" element={<ProtectedRoute><WithdrawRequest /></ProtectedRoute>} />
+            <Route path="/daily-tasks" element={<ProtectedRoute><DailyTasks /></ProtectedRoute>} />
+            <Route path="/buy-code" element={<ProtectedRoute><BuyCode /></ProtectedRoute>} />
+            <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
