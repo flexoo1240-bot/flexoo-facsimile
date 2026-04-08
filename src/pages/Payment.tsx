@@ -13,8 +13,13 @@ import {
   Landmark,
   CreditCard,
   Shield,
+  Clock,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const container = {
   hidden: { opacity: 0 },
@@ -29,10 +34,12 @@ type Step = "notice" | "payment" | "success";
 
 const Payment = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState<Step>("notice");
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const copyText = (text: string, field: string) => {
@@ -51,9 +58,41 @@ const Payment = () => {
     }
   };
 
+  const handleSubmit = async () => {
+    if (!receiptFile || !user) return;
+    setSubmitting(true);
+
+    try {
+      const ext = receiptFile.name.split(".").pop();
+      const filePath = `${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from("receipts")
+        .upload(filePath, receiptFile);
+
+      if (uploadErr) throw uploadErr;
+
+      const { data: urlData } = supabase.storage
+        .from("receipts")
+        .getPublicUrl(filePath);
+
+      const { error: insertErr } = await supabase.from("payments").insert({
+        user_id: user.id,
+        amount: 7500,
+        receipt_url: urlData.publicUrl,
+      });
+
+      if (insertErr) throw insertErr;
+
+      setStep("success");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to submit payment");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-background pb-10">
-      {/* Background grid */}
       <div className="absolute inset-0 pointer-events-none">
         <svg className="absolute inset-0 w-full h-full opacity-[0.025]" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -67,7 +106,6 @@ const Payment = () => {
 
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[350px] rounded-full bg-primary/6 blur-[120px]" />
 
-      {/* Floating particles */}
       {[
         { top: "10%", left: "6%", delay: "0s", size: "w-1.5 h-1.5" },
         { top: "50%", right: "12%", delay: "2s", size: "w-1 h-1" },
@@ -82,7 +120,6 @@ const Payment = () => {
       ))}
 
       <div className="relative z-10 max-w-md mx-auto px-4 pt-5">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,7 +140,6 @@ const Payment = () => {
 
         <AnimatePresence mode="wait">
           {step === "notice" ? (
-            /* Important Payment Notice */
             <motion.div
               key="notice"
               variants={container}
@@ -111,10 +147,7 @@ const Payment = () => {
               animate="show"
               exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
             >
-              <motion.div
-                variants={item}
-                className="glass-card rounded-2xl p-6"
-              >
+              <motion.div variants={item} className="glass-card rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-full bg-[#F5C518]/15 flex items-center justify-center">
                     <AlertTriangle className="w-5 h-5 text-[#F5C518]" />
@@ -137,7 +170,6 @@ const Payment = () => {
                   </li>
                 </ul>
 
-                {/* Opay Warning */}
                 <div
                   className="rounded-xl p-4 mb-6"
                   style={{ background: "var(--danger-bg)", border: "1px solid var(--danger-border)" }}
@@ -175,7 +207,6 @@ const Payment = () => {
               </motion.div>
             </motion.div>
           ) : step === "payment" ? (
-            /* Payment Details */
             <motion.div
               key="payment"
               variants={container}
@@ -184,7 +215,6 @@ const Payment = () => {
               exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
               className="space-y-4"
             >
-              {/* Payment Instructions */}
               <motion.div variants={item} className="glass-card rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
@@ -200,7 +230,6 @@ const Payment = () => {
                   Transfer <span className="font-semibold text-foreground">₦7,500</span> to the account below:
                 </p>
 
-                {/* Bank Details */}
                 <div className="space-y-2.5 mb-5">
                   {[
                     { icon: Landmark, label: "BANK", value: "Moniepoint MFB", copyVal: "Moniepoint MFB" },
@@ -235,21 +264,12 @@ const Payment = () => {
                   ))}
                 </div>
 
-                {/* Pay with Transfer Link */}
                 <button className="btn-cta w-full h-11 rounded-xl text-sm flex items-center justify-center gap-2 mb-4">
                   <ExternalLink className="w-4 h-4" />
                   Pay with Transfer Link
                 </button>
-
-                {/* Purchasing as */}
-                <div className="inner-card flex items-center gap-2.5 rounded-xl px-4 py-3">
-                  <User className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Purchasing as:</span>
-                  <span className="text-xs font-bold text-foreground font-mono-app">ndslt0245208</span>
-                </div>
               </motion.div>
 
-              {/* After Payment - Upload Receipt */}
               <motion.div variants={item} className="glass-card rounded-2xl p-5">
                 <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.12em] mb-3">
                   After Payment
@@ -266,7 +286,6 @@ const Payment = () => {
                   onChange={handleFileChange}
                 />
 
-                {/* Upload Zone */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className={`upload-zone w-full rounded-xl p-7 flex flex-col items-center gap-2.5 mb-5 ${receiptPreview ? "border-primary/50" : ""}`}
@@ -289,94 +308,91 @@ const Payment = () => {
                 </button>
 
                 <button
-                  onClick={() => receiptFile && setStep("success")}
+                  onClick={handleSubmit}
                   className={`w-full h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${
-                    receiptFile
+                    receiptFile && !submitting
                       ? "btn-cta"
                       : "bg-secondary text-muted-foreground cursor-not-allowed"
                   }`}
-                  disabled={!receiptFile}
+                  disabled={!receiptFile || submitting}
                 >
-                  <Shield className="w-4 h-4" />
-                  Submit Payment Proof
+                  {submitting ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                  ) : (
+                    <><Shield className="w-4 h-4" /> Submit Payment Proof</>
+                  )}
                 </button>
               </motion.div>
             </motion.div>
           ) : step === "success" ? (
-            /* Success Confirmation */
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="flex flex-col items-center justify-center py-12"
+              className="flex flex-col items-center justify-center py-8"
             >
-              {/* Animated check circle */}
+              {/* Pending status card */}
               <div className="relative mb-6">
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, duration: 0.5, type: "spring", stiffness: 200, damping: 15 }}
-                  className="w-24 h-24 rounded-full bg-primary/15 flex items-center justify-center"
+                  className="w-24 h-24 rounded-full bg-yellow-500/15 flex items-center justify-center"
                 >
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 0.4, duration: 0.4, type: "spring", stiffness: 250, damping: 12 }}
-                    className="w-16 h-16 rounded-full bg-primary/25 flex items-center justify-center"
+                    className="w-16 h-16 rounded-full bg-yellow-500/25 flex items-center justify-center"
                   >
-                    <motion.svg
-                      width="32"
-                      height="32"
-                      viewBox="0 0 32 32"
-                      fill="none"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ delay: 0.6, duration: 0.5 }}
-                    >
-                      <motion.path
-                        d="M8 16.5L13.5 22L24 11"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ delay: 0.7, duration: 0.5, ease: "easeOut" }}
-                      />
-                    </motion.svg>
+                    <Clock className="w-8 h-8 text-yellow-400" />
                   </motion.div>
                 </motion.div>
-                {/* Pulse ring */}
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0.6 }}
                   animate={{ scale: 1.4, opacity: 0 }}
                   transition={{ delay: 0.5, duration: 1.2, repeat: Infinity, repeatDelay: 0.5 }}
-                  className="absolute inset-0 w-24 h-24 rounded-full border-2 border-primary/30"
+                  className="absolute inset-0 w-24 h-24 rounded-full border-2 border-yellow-400/30"
                 />
               </div>
 
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
+                transition={{ delay: 0.6 }}
                 className="text-lg font-bold text-foreground mb-1"
               >
-                Payment Submitted!
+                Payment Not Confirmed
               </motion.p>
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.95 }}
-                className="text-[13px] text-muted-foreground text-center max-w-[260px] mb-8 leading-relaxed"
+                transition={{ delay: 0.75 }}
+                className="text-[13px] text-muted-foreground text-center max-w-[280px] mb-3 leading-relaxed"
               >
-                Your payment proof has been received. We'll verify it and activate your code shortly.
+                Your payment proof has been submitted and is awaiting admin review.
               </motion.p>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.1 }}
+                transition={{ delay: 0.9 }}
+                className="glass-card rounded-xl p-4 w-full mb-6"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="w-4 h-4 text-yellow-400" />
+                  <p className="text-xs font-bold text-yellow-400">Pending Review</p>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  An admin will verify your payment receipt shortly. You'll receive confirmation once your payment is approved. This usually takes a few minutes.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.05 }}
                 className="w-full space-y-2.5"
               >
                 <button
