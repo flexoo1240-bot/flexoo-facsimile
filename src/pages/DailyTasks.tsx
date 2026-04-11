@@ -7,6 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 
+const AD_VIDEOS = [
+  "dQw4w9WgXcQ",
+  "9bZkp7q19f0",
+  "kJQP7kiw5Fk",
+  "RgKAFK5djSk",
+  "JGwWNGJdvx8",
+];
+
 const TASKS = [
   { type: "login", label: "Daily Login", desc: "Log in to the app today", icon: Flame, points: 100 },
   { type: "watch_ad", label: "Watch Video Ad", desc: "Watch a 30-second promotional video", icon: Eye, points: 200 },
@@ -31,6 +39,7 @@ const DailyTasks = () => {
   const [showVideoAd, setShowVideoAd] = useState(false);
   const [adCountdown, setAdCountdown] = useState(30);
   const [adPlaying, setAdPlaying] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState("");
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -102,6 +111,7 @@ const DailyTasks = () => {
 
     // For watch_ad, open the video modal
     if (taskType === "watch_ad") {
+      setCurrentVideoId(AD_VIDEOS[Math.floor(Math.random() * AD_VIDEOS.length)]);
       setShowVideoAd(true);
       setAdCountdown(30);
       setAdPlaying(false);
@@ -286,7 +296,7 @@ const DailyTasks = () => {
                   {/* YouTube video ad */}
                   <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-4 bg-secondary">
                     <iframe
-                      src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0"
+                      src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0`}
                       className="absolute inset-0 w-full h-full"
                       allow="autoplay; encrypted-media"
                       allowFullScreen
