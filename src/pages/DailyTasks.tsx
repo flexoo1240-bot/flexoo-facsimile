@@ -283,25 +283,17 @@ const DailyTasks = () => {
                 </>
               ) : (
                 <>
-                  {/* Simulated video ad */}
+                  {/* YouTube video ad */}
                   <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-4 bg-secondary">
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      {/* Animated ad content */}
-                      <motion.div
-                        animate={{ scale: [1, 1.05, 1], rotate: [0, 1, -1, 0] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className="mb-3"
-                      >
-                        <div className="w-20 h-20 rounded-2xl flex items-center justify-center" style={{ background: "var(--gradient-cta)" }}>
-                          <span className="text-3xl">💰</span>
-                        </div>
-                      </motion.div>
-                      <p className="text-sm font-bold text-foreground mb-1">Flexoo Premium</p>
-                      <p className="text-[10px] text-muted-foreground">Earn more with daily tasks!</p>
-                    </div>
-
+                    <iframe
+                      src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0"
+                      className="absolute inset-0 w-full h-full"
+                      allow="autoplay; encrypted-media"
+                      allowFullScreen
+                      title="Video Ad"
+                    />
                     {/* Progress bar at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-secondary">
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-secondary z-10">
                       <motion.div
                         className="h-full bg-primary"
                         initial={{ width: "0%" }}
