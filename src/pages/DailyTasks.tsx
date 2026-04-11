@@ -7,6 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 
+const AD_VIDEOS = [
+  "dQw4w9WgXcQ",
+  "9bZkp7q19f0",
+  "kJQP7kiw5Fk",
+  "RgKAFK5djSk",
+  "JGwWNGJdvx8",
+];
+
 const TASKS = [
   { type: "login", label: "Daily Login", desc: "Log in to the app today", icon: Flame, points: 100 },
   { type: "watch_ad", label: "Watch Video Ad", desc: "Watch a 30-second promotional video", icon: Eye, points: 200 },
