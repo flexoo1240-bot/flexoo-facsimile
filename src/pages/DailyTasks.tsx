@@ -39,6 +39,7 @@ const DailyTasks = () => {
   const [showVideoAd, setShowVideoAd] = useState(false);
   const [adCountdown, setAdCountdown] = useState(30);
   const [adPlaying, setAdPlaying] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState("");
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
