@@ -111,6 +111,7 @@ const DailyTasks = () => {
 
     // For watch_ad, open the video modal
     if (taskType === "watch_ad") {
+      setCurrentVideoId(AD_VIDEOS[Math.floor(Math.random() * AD_VIDEOS.length)]);
       setShowVideoAd(true);
       setAdCountdown(30);
       setAdPlaying(false);
