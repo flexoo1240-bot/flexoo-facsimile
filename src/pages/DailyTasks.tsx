@@ -296,7 +296,7 @@ const DailyTasks = () => {
                   {/* YouTube video ad */}
                   <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-4 bg-secondary">
                     <iframe
-                      src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0"
+                      src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0`}
                       className="absolute inset-0 w-full h-full"
                       allow="autoplay; encrypted-media"
                       allowFullScreen
