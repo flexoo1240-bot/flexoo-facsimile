@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -30,30 +30,95 @@ interface PaymentRecord {
   reviewed_at: string | null;
 }
 
+interface UserProfile {
+  id: string;
+  user_id: string;
+  full_name: string;
+  username: string;
+  phone: string | null;
+  bonus_balance: number;
+  level: string;
+  referral_code: string | null;
+  total_tasks_completed: number;
+  created_at: string;
+}
+
+type TabType = "analytics" | "withdrawals" | "payments" | "users";
+
 const Admin = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAdmin, loading: roleLoading } = useAdminCheck();
-  const [tab, setTab] = useState<"withdrawals" | "payments">("withdrawals");
+  const [tab, setTab] = useState<TabType>("analytics");
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [processing, setProcessing] = useState<string | null>(null);
   const [receiptModal, setReceiptModal] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Analytics state
+  const [analytics, setAnalytics] = useState({
+    totalUsers: 0,
+    totalWithdrawals: 0,
+    totalPayments: 0,
+    totalTasks: 0,
+    pendingWithdrawals: 0,
+    pendingPayments: 0,
+    totalWithdrawnAmount: 0,
+    totalPaidAmount: 0,
+    totalBalance: 0,
+    todaySignups: 0,
+  });
+
+  const fetchAnalytics = async () => {
+    const [profilesRes, withdrawalsRes, paymentsRes, tasksRes] = await Promise.all([
+      supabase.from("profiles").select("bonus_balance, created_at"),
+      supabase.from("withdrawal_requests").select("amount, status"),
+      supabase.from("payments").select("amount, status"),
+      supabase.from("daily_tasks").select("id"),
+    ]);
+
+    const profiles = profilesRes.data || [];
+    const withdrawals = withdrawalsRes.data || [];
+    const allPayments = paymentsRes.data || [];
+    const tasks = tasksRes.data || [];
+
+    const today = new Date().toISOString().split("T")[0];
+
+    setAnalytics({
+      totalUsers: profiles.length,
+      totalWithdrawals: withdrawals.length,
+      totalPayments: allPayments.length,
+      totalTasks: tasks.length,
+      pendingWithdrawals: withdrawals.filter((w) => w.status === "pending").length,
+      pendingPayments: allPayments.filter((p) => p.status === "pending").length,
+      totalWithdrawnAmount: withdrawals.filter((w) => w.status === "approved").reduce((s, w) => s + Number(w.amount), 0),
+      totalPaidAmount: allPayments.filter((p) => p.status === "confirmed").reduce((s, p) => s + Number(p.amount), 0),
+      totalBalance: profiles.reduce((s, p) => s + Number(p.bonus_balance), 0),
+      todaySignups: profiles.filter((p) => p.created_at?.startsWith(today)).length,
+    });
+  };
 
   const fetchData = async () => {
     setLoading(true);
-    if (tab === "withdrawals") {
+    if (tab === "analytics") {
+      await fetchAnalytics();
+    } else if (tab === "withdrawals") {
       let query = supabase.from("withdrawal_requests").select("*").order("created_at", { ascending: false });
       if (filter !== "all") query = query.eq("status", filter);
       const { data } = await query;
       setRequests(data || []);
-    } else {
+    } else if (tab === "payments") {
       let query = supabase.from("payments").select("*").order("created_at", { ascending: false });
       if (filter !== "all") query = query.eq("status", filter);
       const { data } = await query;
       setPayments((data as PaymentRecord[]) || []);
+    } else if (tab === "users") {
+      const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+      setUsers((data as UserProfile[]) || []);
     }
     setLoading(false);
   };
@@ -96,6 +161,13 @@ const Admin = () => {
 
   const filters = ["all", "pending", "approved", "rejected"] as const;
 
+  const filteredUsers = users.filter(
+    (u) =>
+      u.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (u.phone && u.phone.includes(searchQuery))
+  );
+
   if (roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -117,6 +189,13 @@ const Admin = () => {
     );
   }
 
+  const tabs: { key: TabType; label: string; icon: React.ReactNode }[] = [
+    { key: "analytics", label: "Analytics", icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { key: "withdrawals", label: "Withdrawals", icon: <CreditCard className="w-3.5 h-3.5" /> },
+    { key: "payments", label: "Payments", icon: <Image className="w-3.5 h-3.5" /> },
+    { key: "users", label: "Users", icon: <Users className="w-3.5 h-3.5" /> },
+  ];
+
   return (
     <div className="relative min-h-screen bg-background pb-10">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[350px] rounded-full bg-primary/6 blur-[120px] pointer-events-none" />
@@ -129,7 +208,7 @@ const Admin = () => {
           <Shield className="w-5 h-5 text-primary" />
           <div>
             <h1 className="text-sm font-bold text-foreground">Admin Panel</h1>
-            <p className="text-[10px] text-muted-foreground">Manage requests & payments</p>
+            <p className="text-[10px] text-muted-foreground">Manage requests, payments & users</p>
           </div>
           <button onClick={fetchData} className="ml-auto glass-card w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted/30">
             <RefreshCw className={`w-3.5 h-3.5 text-muted-foreground ${loading ? "animate-spin" : ""}`} />
@@ -137,44 +216,153 @@ const Admin = () => {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex gap-2 mb-4">
-          {(["withdrawals", "payments"] as const).map((t) => (
+        <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1">
+          {tabs.map((t) => (
             <button
-              key={t}
-              onClick={() => { setTab(t); setFilter("pending"); }}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all ${
-                tab === t ? "bg-primary/15 text-primary border border-primary/30" : "glass-card text-muted-foreground hover:text-foreground"
+              key={t.key}
+              onClick={() => { setTab(t.key); if (t.key === "withdrawals" || t.key === "payments") setFilter("pending"); }}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
+                tab === t.key ? "bg-primary/15 text-primary border border-primary/30" : "glass-card text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "withdrawals" ? <CreditCard className="w-3.5 h-3.5" /> : <Image className="w-3.5 h-3.5" />}
-              {t}
+              {t.icon}
+              {t.label}
             </button>
           ))}
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-1.5 mb-4">
-          {filters.map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all ${
-                filter === f ? "bg-primary/15 text-primary border border-primary/30" : "glass-card text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        {/* Analytics Tab */}
+        {tab === "analytics" && (
+          loading ? (
+            <div className="text-center py-12">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Overview Cards */}
+              <div className="grid grid-cols-2 gap-2.5">
+                {[
+                  { label: "Total Users", value: analytics.totalUsers, icon: <Users className="w-4 h-4 text-primary" />, color: "text-primary" },
+                  { label: "Today's Signups", value: analytics.todaySignups, icon: <TrendingUp className="w-4 h-4 text-emerald-400" />, color: "text-emerald-400" },
+                  { label: "Total Tasks Done", value: analytics.totalTasks, icon: <Activity className="w-4 h-4 text-blue-400" />, color: "text-blue-400" },
+                  { label: "Total Balance (All)", value: `₦${analytics.totalBalance.toLocaleString()}`, icon: <Wallet className="w-4 h-4 text-amber-400" />, color: "text-amber-400" },
+                ].map(({ label, value, icon, color }) => (
+                  <div key={label} className="glass-card rounded-xl p-3.5">
+                    <div className="flex items-center gap-2 mb-2">
+                      {icon}
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider font-bold">{label}</p>
+                    </div>
+                    <p className={`text-lg font-extrabold ${color}`}>{value}</p>
+                  </div>
+                ))}
+              </div>
 
-        {/* Content */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">Loading...</p>
+              {/* Financial Summary */}
+              <div className="glass-card rounded-xl p-4">
+                <h3 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-primary" /> Financial Summary
+                </h3>
+                <div className="space-y-2.5">
+                  {[
+                    { label: "Total Withdrawn (Approved)", value: `₦${analytics.totalWithdrawnAmount.toLocaleString()}`, sub: `${analytics.totalWithdrawals} total requests` },
+                    { label: "Total Payments (Confirmed)", value: `₦${analytics.totalPaidAmount.toLocaleString()}`, sub: `${analytics.totalPayments} total payments` },
+                    { label: "Pending Withdrawals", value: analytics.pendingWithdrawals, sub: "awaiting review" },
+                    { label: "Pending Payments", value: analytics.pendingPayments, sub: "awaiting confirmation" },
+                  ].map(({ label, value, sub }) => (
+                    <div key={label} className="inner-card rounded-lg p-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] font-bold text-foreground">{label}</p>
+                        <p className="text-[9px] text-muted-foreground">{sub}</p>
+                      </div>
+                      <p className="text-sm font-extrabold text-foreground">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        )}
+
+        {/* Filter Tabs (for withdrawals & payments) */}
+        {(tab === "withdrawals" || tab === "payments") && (
+          <div className="flex gap-1.5 mb-4">
+            {filters.map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all ${
+                  filter === f ? "bg-primary/15 text-primary border border-primary/30" : "glass-card text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {f}
+              </button>
+            ))}
           </div>
-        ) : tab === "withdrawals" ? (
-          requests.length === 0 ? (
+        )}
+
+        {/* Users Tab */}
+        {tab === "users" && (
+          <>
+            <input
+              type="text"
+              placeholder="Search by name, username, or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full glass-card rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground mb-4 outline-none focus:ring-1 focus:ring-primary/30"
+            />
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="glass-card rounded-xl p-8 text-center">
+                <Users className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No users found</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider mb-2">
+                  {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""}
+                </p>
+                {filteredUsers.map((u) => (
+                  <div key={u.id} className="glass-card rounded-xl p-3.5">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                        <User className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-[12px] font-bold text-foreground truncate">{u.full_name || "—"}</p>
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
+                            u.level === "gold" ? "bg-amber-400/15 text-amber-400" :
+                            u.level === "silver" ? "bg-gray-400/15 text-gray-400" :
+                            "bg-orange-400/15 text-orange-400"
+                          }`}>{u.level}</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">@{u.username} · {u.phone || "No phone"}</p>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <span className="text-[10px] text-primary font-bold">₦{Number(u.bonus_balance).toLocaleString()}</span>
+                          <span className="text-[9px] text-muted-foreground">Tasks: {u.total_tasks_completed}</span>
+                          <span className="text-[9px] text-muted-foreground">Code: {u.referral_code || "—"}</span>
+                        </div>
+                        <p className="text-[9px] text-muted-foreground mt-1">Joined {new Date(u.created_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Withdrawals Content */}
+        {tab === "withdrawals" && (
+          loading ? (
+            <div className="text-center py-12">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            </div>
+          ) : requests.length === 0 ? (
             <div className="glass-card rounded-xl p-8 text-center">
               <Shield className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">No {filter !== "all" ? filter : ""} withdrawal requests</p>
@@ -227,8 +415,16 @@ const Admin = () => {
               ))}
             </div>
           )
-        ) : (
-          payments.length === 0 ? (
+        )}
+
+        {/* Payments Content */}
+        {tab === "payments" && (
+          loading ? (
+            <div className="text-center py-12">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            </div>
+          ) : payments.length === 0 ? (
             <div className="glass-card rounded-xl p-8 text-center">
               <Image className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">No {filter !== "all" ? filter : ""} payments</p>
@@ -246,8 +442,6 @@ const Admin = () => {
                       {statusIcon(pay.status)} {pay.status}
                     </span>
                   </div>
-
-                  {/* Receipt Preview */}
                   {pay.receipt_url && (
                     <button
                       onClick={() => setReceiptModal(pay.receipt_url)}
@@ -263,9 +457,7 @@ const Admin = () => {
                       <Image className="w-4 h-4 text-muted-foreground ml-auto" />
                     </button>
                   )}
-
                   <p className="text-[9px] text-muted-foreground mb-2 font-mono-app truncate">User: {pay.user_id.slice(0, 8)}...</p>
-
                   {pay.status === "pending" && (
                     <div className="flex gap-2">
                       <button
