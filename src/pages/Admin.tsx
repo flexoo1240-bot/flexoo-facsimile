@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity, Download } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity, Download, Pencil, Save, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -75,6 +75,13 @@ const Admin = () => {
   const [processing, setProcessing] = useState<string | null>(null);
   const [receiptModal, setReceiptModal] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editBalance, setEditBalance] = useState("");
+  const [editLevel, setEditLevel] = useState("");
+  const [editingWithdrawal, setEditingWithdrawal] = useState<string | null>(null);
+  const [editBank, setEditBank] = useState("");
+  const [editAccNum, setEditAccNum] = useState("");
+  const [editAccName, setEditAccName] = useState("");
 
   // Analytics state
   const [analytics, setAnalytics] = useState({
@@ -163,6 +170,32 @@ const Admin = () => {
       .eq("id", id);
     if (error) toast.error(error.message || "Failed to process");
     else toast.success(`Payment ${action}!`);
+    setProcessing(null);
+    fetchData();
+  };
+
+  const handleSaveUser = async (u: UserProfile) => {
+    setProcessing(u.id);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ bonus_balance: Number(editBalance), level: editLevel })
+      .eq("id", u.id);
+    if (error) toast.error(error.message);
+    else toast.success("User updated!");
+    setEditingUser(null);
+    setProcessing(null);
+    fetchData();
+  };
+
+  const handleSaveWithdrawalAccount = async (req: WithdrawalRequest) => {
+    setProcessing(req.id);
+    const { error } = await supabase
+      .from("withdrawal_requests")
+      .update({ bank_name: editBank, account_number: editAccNum, account_name: editAccName })
+      .eq("id", req.id);
+    if (error) toast.error(error.message);
+    else toast.success("Account details updated!");
+    setEditingWithdrawal(null);
     setProcessing(null);
     fetchData();
   };
@@ -360,19 +393,73 @@ const Admin = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <p className="text-[12px] font-bold text-foreground truncate">{u.full_name || "—"}</p>
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
-                            u.level === "gold" ? "bg-amber-400/15 text-amber-400" :
-                            u.level === "silver" ? "bg-gray-400/15 text-gray-400" :
-                            "bg-orange-400/15 text-orange-400"
-                          }`}>{u.level}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${
+                              u.level === "gold" ? "bg-amber-400/15 text-amber-400" :
+                              u.level === "silver" ? "bg-gray-400/15 text-gray-400" :
+                              "bg-orange-400/15 text-orange-400"
+                            }`}>{u.level}</span>
+                            {editingUser !== u.id && (
+                              <button
+                                onClick={() => { setEditingUser(u.id); setEditBalance(String(u.bonus_balance)); setEditLevel(u.level); }}
+                                className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                              >
+                                <Pencil className="w-3 h-3 text-primary" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <p className="text-[10px] text-muted-foreground">@{u.username} · {u.phone || "No phone"}</p>
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <span className="text-[10px] text-primary font-bold">₦{Number(u.bonus_balance).toLocaleString()}</span>
-                          <span className="text-[9px] text-muted-foreground">Tasks: {u.total_tasks_completed}</span>
-                          <span className="text-[9px] text-muted-foreground">Code: {u.referral_code || "—"}</span>
-                        </div>
-                        <p className="text-[9px] text-muted-foreground mt-1">Joined {new Date(u.created_at).toLocaleDateString()}</p>
+
+                        {editingUser === u.id ? (
+                          <div className="mt-2 space-y-2">
+                            <div>
+                              <label className="text-[9px] text-muted-foreground uppercase font-bold">Balance (₦)</label>
+                              <input
+                                type="number"
+                                value={editBalance}
+                                onChange={(e) => setEditBalance(e.target.value)}
+                                className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[9px] text-muted-foreground uppercase font-bold">Level</label>
+                              <select
+                                value={editLevel}
+                                onChange={(e) => setEditLevel(e.target.value)}
+                                className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30 bg-background"
+                              >
+                                <option value="bronze">Bronze</option>
+                                <option value="silver">Silver</option>
+                                <option value="gold">Gold</option>
+                              </select>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSaveUser(u)}
+                                disabled={processing === u.id}
+                                className="btn-cta flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50"
+                              >
+                                <Save className="w-3 h-3" /> Save
+                              </button>
+                              <button
+                                onClick={() => setEditingUser(null)}
+                                className="glass-card flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 text-muted-foreground hover:text-foreground"
+                              >
+                                <X className="w-3 h-3" /> Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-3 mt-1.5">
+                              <span className="text-[10px] text-primary font-bold">₦{Number(u.bonus_balance).toLocaleString()}</span>
+                              <span className="text-[9px] text-muted-foreground">Tasks: {u.total_tasks_completed}</span>
+                              <span className="text-[9px] text-muted-foreground">Code: {u.referral_code || "—"}</span>
+                            </div>
+                            <p className="text-[9px] text-muted-foreground mt-1">Joined {new Date(u.created_at).toLocaleDateString()}</p>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -407,19 +494,55 @@ const Admin = () => {
                       {statusIcon(req.status)} {req.status}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    {[
-                      { label: "Bank", value: req.bank_name },
-                      { label: "Account No.", value: req.account_number },
-                      { label: "Account Name", value: req.account_name },
-                      { label: "BVN", value: req.bvn.slice(0, 3) + "****" + req.bvn.slice(-4) },
-                    ].map(({ label, value }) => (
-                      <div key={label} className="inner-card rounded-lg p-2">
-                        <p className="text-[8px] text-muted-foreground uppercase tracking-wider font-bold">{label}</p>
-                        <p className="text-[11px] font-bold text-foreground truncate">{value}</p>
+                  {editingWithdrawal === req.id ? (
+                    <div className="space-y-2 mb-3">
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Bank Name</label>
+                        <input value={editBank} onChange={(e) => setEditBank(e.target.value)} className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30" />
                       </div>
-                    ))}
-                  </div>
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Account Number</label>
+                        <input value={editAccNum} onChange={(e) => setEditAccNum(e.target.value)} className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30" />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Account Name</label>
+                        <input value={editAccName} onChange={(e) => setEditAccName(e.target.value)} className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30" />
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => handleSaveWithdrawalAccount(req)} disabled={processing === req.id} className="btn-cta flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50">
+                          <Save className="w-3 h-3" /> Save
+                        </button>
+                        <button onClick={() => setEditingWithdrawal(null)} className="glass-card flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 text-muted-foreground hover:text-foreground">
+                          <X className="w-3 h-3" /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[9px] text-muted-foreground uppercase font-bold">Account Details</span>
+                        <button
+                          onClick={() => { setEditingWithdrawal(req.id); setEditBank(req.bank_name); setEditAccNum(req.account_number); setEditAccName(req.account_name); }}
+                          className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                        >
+                          <Pencil className="w-3 h-3 text-primary" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { label: "Bank", value: req.bank_name },
+                          { label: "Account No.", value: req.account_number },
+                          { label: "Account Name", value: req.account_name },
+                          { label: "BVN", value: req.bvn.slice(0, 3) + "****" + req.bvn.slice(-4) },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="inner-card rounded-lg p-2">
+                            <p className="text-[8px] text-muted-foreground uppercase tracking-wider font-bold">{label}</p>
+                            <p className="text-[11px] font-bold text-foreground truncate">{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {req.status === "pending" && (
                     <div className="flex gap-2">
                       <button
