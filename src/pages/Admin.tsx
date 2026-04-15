@@ -174,6 +174,32 @@ const Admin = () => {
     fetchData();
   };
 
+  const handleSaveUser = async (u: UserProfile) => {
+    setProcessing(u.id);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ bonus_balance: Number(editBalance), level: editLevel })
+      .eq("id", u.id);
+    if (error) toast.error(error.message);
+    else toast.success("User updated!");
+    setEditingUser(null);
+    setProcessing(null);
+    fetchData();
+  };
+
+  const handleSaveWithdrawalAccount = async (req: WithdrawalRequest) => {
+    setProcessing(req.id);
+    const { error } = await supabase
+      .from("withdrawal_requests")
+      .update({ bank_name: editBank, account_number: editAccNum, account_name: editAccName })
+      .eq("id", req.id);
+    if (error) toast.error(error.message);
+    else toast.success("Account details updated!");
+    setEditingWithdrawal(null);
+    setProcessing(null);
+    fetchData();
+  };
+
   const statusIcon = (s: string) => {
     if (s === "pending") return <Clock className="w-3.5 h-3.5 text-yellow-400" />;
     if (s === "approved" || s === "confirmed") return <CheckCircle className="w-3.5 h-3.5 text-primary" />;
