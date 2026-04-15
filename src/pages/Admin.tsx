@@ -75,6 +75,13 @@ const Admin = () => {
   const [processing, setProcessing] = useState<string | null>(null);
   const [receiptModal, setReceiptModal] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editBalance, setEditBalance] = useState("");
+  const [editLevel, setEditLevel] = useState("");
+  const [editingWithdrawal, setEditingWithdrawal] = useState<string | null>(null);
+  const [editBank, setEditBank] = useState("");
+  const [editAccNum, setEditAccNum] = useState("");
+  const [editAccName, setEditAccName] = useState("");
 
   // Analytics state
   const [analytics, setAnalytics] = useState({
