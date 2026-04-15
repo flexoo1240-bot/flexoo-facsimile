@@ -21,6 +21,7 @@ import WithdrawRequest from "./pages/WithdrawRequest.tsx";
 import DailyTasks from "./pages/DailyTasks.tsx";
 import BuyCode from "./pages/BuyCode.tsx";
 import Payment from "./pages/Payment.tsx";
+import PaymentReceipt from "./pages/PaymentReceipt.tsx";
 import Admin from "./pages/Admin.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/daily-tasks" element={<ProtectedRoute><DailyTasks /></ProtectedRoute>} />
             <Route path="/buy-code" element={<ProtectedRoute><BuyCode /></ProtectedRoute>} />
             <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
+            <Route path="/payment-receipt" element={<ProtectedRoute><PaymentReceipt /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
