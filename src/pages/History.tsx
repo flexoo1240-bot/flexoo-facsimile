@@ -11,6 +11,7 @@ interface Transaction {
   amount: string;
   date: string;
   time: string;
+  linkTo?: string;
 }
 
 const History = () => {
@@ -89,6 +90,7 @@ const History = () => {
           amount: `-₦${p.amount.toLocaleString()}`,
           date: d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
           time: d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+          linkTo: "/payment-receipt",
         });
       });
 
@@ -137,7 +139,8 @@ const History = () => {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className="glass-card rounded-lg p-3 flex items-center gap-3"
+                className={`glass-card rounded-lg p-3 flex items-center gap-3 ${tx.linkTo ? "cursor-pointer hover:border-primary/30" : ""}`}
+                onClick={() => tx.linkTo && navigate(tx.linkTo)}
               >
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${tx.type === "credit" ? "bg-primary/10" : "bg-destructive/10"}`}>
                   {tx.type === "credit" ? (
