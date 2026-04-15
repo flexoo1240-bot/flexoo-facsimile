@@ -302,7 +302,7 @@ const Admin = () => {
 
         {/* Filter Tabs (for withdrawals & payments) */}
         {(tab === "withdrawals" || tab === "payments") && (
-          <div className="flex gap-1.5 mb-4">
+          <div className="flex items-center gap-1.5 mb-4">
             {filters.map((f) => (
               <button
                 key={f}
@@ -314,6 +314,16 @@ const Admin = () => {
                 {f}
               </button>
             ))}
+            <button
+              onClick={() =>
+                tab === "withdrawals"
+                  ? exportToCSV(requests.map(({ id, amount, bank_name, account_number, account_name, bvn, status, created_at }) => ({ id, amount, bank_name, account_number, account_name, bvn, status, created_at })), "withdrawals")
+                  : exportToCSV(payments.map(({ id, amount, status, created_at, user_id }) => ({ id, amount, status, created_at, user_id })), "payments")
+              }
+              className="ml-auto glass-card px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 text-primary hover:bg-primary/10 transition-all"
+            >
+              <Download className="w-3.5 h-3.5" /> CSV
+            </button>
           </div>
         )}
 
