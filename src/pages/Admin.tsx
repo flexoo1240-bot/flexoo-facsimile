@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -44,6 +44,23 @@ interface UserProfile {
 }
 
 type TabType = "analytics" | "withdrawals" | "payments" | "users";
+
+const exportToCSV = (rows: Record<string, unknown>[], filename: string) => {
+  if (!rows.length) return toast.error("No data to export");
+  const headers = Object.keys(rows[0]);
+  const csv = [
+    headers.join(","),
+    ...rows.map((r) => headers.map((h) => `"${String(r[h] ?? "").replace(/"/g, '""')}"`).join(","))
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${filename}_${new Date().toISOString().split("T")[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success("CSV exported!");
+};
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -285,7 +302,7 @@ const Admin = () => {
 
         {/* Filter Tabs (for withdrawals & payments) */}
         {(tab === "withdrawals" || tab === "payments") && (
-          <div className="flex gap-1.5 mb-4">
+          <div className="flex items-center gap-1.5 mb-4">
             {filters.map((f) => (
               <button
                 key={f}
@@ -297,6 +314,16 @@ const Admin = () => {
                 {f}
               </button>
             ))}
+            <button
+              onClick={() =>
+                tab === "withdrawals"
+                  ? exportToCSV(requests.map(({ id, amount, bank_name, account_number, account_name, bvn, status, created_at }) => ({ id, amount, bank_name, account_number, account_name, bvn, status, created_at })), "withdrawals")
+                  : exportToCSV(payments.map(({ id, amount, status, created_at, user_id }) => ({ id, amount, status, created_at, user_id })), "payments")
+              }
+              className="ml-auto glass-card px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 text-primary hover:bg-primary/10 transition-all"
+            >
+              <Download className="w-3.5 h-3.5" /> CSV
+            </button>
           </div>
         )}
 
