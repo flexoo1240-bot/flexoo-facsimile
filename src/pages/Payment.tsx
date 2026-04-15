@@ -402,6 +402,12 @@ const Payment = () => {
                   Go to Dashboard
                 </button>
                 <button
+                  onClick={() => navigate("/payment-receipt")}
+                  className="w-full h-11 rounded-xl text-sm font-semibold text-primary hover:text-foreground transition-colors"
+                >
+                  View My Payments
+                </button>
+                <button
                   onClick={() => navigate("/history")}
                   className="w-full h-11 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
                 >
