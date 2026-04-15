@@ -494,19 +494,55 @@ const Admin = () => {
                       {statusIcon(req.status)} {req.status}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    {[
-                      { label: "Bank", value: req.bank_name },
-                      { label: "Account No.", value: req.account_number },
-                      { label: "Account Name", value: req.account_name },
-                      { label: "BVN", value: req.bvn.slice(0, 3) + "****" + req.bvn.slice(-4) },
-                    ].map(({ label, value }) => (
-                      <div key={label} className="inner-card rounded-lg p-2">
-                        <p className="text-[8px] text-muted-foreground uppercase tracking-wider font-bold">{label}</p>
-                        <p className="text-[11px] font-bold text-foreground truncate">{value}</p>
+                  {editingWithdrawal === req.id ? (
+                    <div className="space-y-2 mb-3">
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Bank Name</label>
+                        <input value={editBank} onChange={(e) => setEditBank(e.target.value)} className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30" />
                       </div>
-                    ))}
-                  </div>
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Account Number</label>
+                        <input value={editAccNum} onChange={(e) => setEditAccNum(e.target.value)} className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30" />
+                      </div>
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Account Name</label>
+                        <input value={editAccName} onChange={(e) => setEditAccName(e.target.value)} className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30" />
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => handleSaveWithdrawalAccount(req)} disabled={processing === req.id} className="btn-cta flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50">
+                          <Save className="w-3 h-3" /> Save
+                        </button>
+                        <button onClick={() => setEditingWithdrawal(null)} className="glass-card flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 text-muted-foreground hover:text-foreground">
+                          <X className="w-3 h-3" /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[9px] text-muted-foreground uppercase font-bold">Account Details</span>
+                        <button
+                          onClick={() => { setEditingWithdrawal(req.id); setEditBank(req.bank_name); setEditAccNum(req.account_number); setEditAccName(req.account_name); }}
+                          className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                        >
+                          <Pencil className="w-3 h-3 text-primary" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { label: "Bank", value: req.bank_name },
+                          { label: "Account No.", value: req.account_number },
+                          { label: "Account Name", value: req.account_name },
+                          { label: "BVN", value: req.bvn.slice(0, 3) + "****" + req.bvn.slice(-4) },
+                        ].map(({ label, value }) => (
+                          <div key={label} className="inner-card rounded-lg p-2">
+                            <p className="text-[8px] text-muted-foreground uppercase tracking-wider font-bold">{label}</p>
+                            <p className="text-[11px] font-bold text-foreground truncate">{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {req.status === "pending" && (
                     <div className="flex gap-2">
                       <button
