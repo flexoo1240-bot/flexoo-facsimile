@@ -45,6 +45,23 @@ interface UserProfile {
 
 type TabType = "analytics" | "withdrawals" | "payments" | "users";
 
+const exportToCSV = (rows: Record<string, unknown>[], filename: string) => {
+  if (!rows.length) return toast.error("No data to export");
+  const headers = Object.keys(rows[0]);
+  const csv = [
+    headers.join(","),
+    ...rows.map((r) => headers.map((h) => `"${String(r[h] ?? "").replace(/"/g, '""')}"`).join(","))
+  ].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${filename}_${new Date().toISOString().split("T")[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success("CSV exported!");
+};
+
 const Admin = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
