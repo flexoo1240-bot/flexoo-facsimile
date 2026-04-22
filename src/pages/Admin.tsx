@@ -217,7 +217,58 @@ const Admin = () => {
     fetchData();
   };
 
-  const statusIcon = (s: string) => {
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    toast.success(`Copied ${code}`);
+  };
+
+  const handleToggleCodeUsed = async (c: FpcCode) => {
+    setProcessing(c.id);
+    const { error } = await supabase
+      .from("fpc_codes")
+      .update({ used: !c.used, used_at: !c.used ? new Date().toISOString() : null, used_for_withdrawal_id: !c.used ? c.used_for_withdrawal_id : null })
+      .eq("id", c.id);
+    if (error) toast.error(error.message);
+    else toast.success(`Code marked as ${!c.used ? "used" : "unused"}`);
+    setProcessing(null);
+    fetchData();
+  };
+
+  const handleRegenerateCode = async (c: FpcCode) => {
+    if (!confirm(`Regenerate code for payment ${c.payment_id.slice(0, 8)}? Old code "${c.code}" will be deleted.`)) return;
+    setProcessing(c.id);
+    const { data: newCodeData, error: genErr } = await supabase.rpc("generate_fpc_code");
+    if (genErr || !newCodeData) {
+      toast.error(genErr?.message || "Failed to generate code");
+      setProcessing(null);
+      return;
+    }
+    const { error: delErr } = await supabase.from("fpc_codes").delete().eq("id", c.id);
+    if (delErr) {
+      toast.error(delErr.message);
+      setProcessing(null);
+      return;
+    }
+    const { error: insErr } = await supabase.from("fpc_codes").insert({
+      user_id: c.user_id,
+      payment_id: c.payment_id,
+      code: newCodeData as string,
+    });
+    if (insErr) toast.error(insErr.message);
+    else toast.success(`New code: ${newCodeData}`);
+    setProcessing(null);
+    fetchData();
+  };
+
+  const handleDeleteCode = async (c: FpcCode) => {
+    if (!confirm(`Delete code "${c.code}" permanently?`)) return;
+    setProcessing(c.id);
+    const { error } = await supabase.from("fpc_codes").delete().eq("id", c.id);
+    if (error) toast.error(error.message);
+    else toast.success("Code deleted");
+    setProcessing(null);
+    fetchData();
+  };
     if (s === "pending") return <Clock className="w-3.5 h-3.5 text-yellow-400" />;
     if (s === "approved" || s === "confirmed") return <CheckCircle className="w-3.5 h-3.5 text-primary" />;
     return <XCircle className="w-3.5 h-3.5 text-destructive" />;
@@ -235,7 +286,13 @@ const Admin = () => {
       (u.phone && u.phone.includes(searchQuery))
   );
 
-  if (roleLoading) {
+  const filteredFpcCodes = fpcCodes.filter((c) => {
+    if (fpcFilter === "used" && !c.used) return false;
+    if (fpcFilter === "unused" && c.used) return false;
+    if (!fpcSearch) return true;
+    const q = fpcSearch.toLowerCase();
+    return c.code.toLowerCase().includes(q) || c.user_id.toLowerCase().includes(q) || c.payment_id.toLowerCase().includes(q);
+  });
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
