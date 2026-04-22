@@ -832,12 +832,95 @@ const Admin = () => {
                 </button>
               ))}
               <button
-                onClick={() => exportToCSV(fpcCodes.map(({ id, code, user_id, payment_id, used, used_at, created_at }) => ({ id, code, user_id, payment_id, used, used_at, created_at })), "fpc_codes")}
+                onClick={() => setShowFpcCreate((v) => !v)}
                 className="ml-auto glass-card px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 text-primary hover:bg-primary/10 transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" /> {showFpcCreate ? "Close" : "New"}
+              </button>
+              <button
+                onClick={() => exportToCSV(fpcCodes.map(({ id, code, user_id, payment_id, used, used_at, created_at }) => ({ id, code, user_id, payment_id, used, used_at, created_at })), "fpc_codes")}
+                className="glass-card px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 text-primary hover:bg-primary/10 transition-all"
               >
                 <Download className="w-3.5 h-3.5" /> CSV
               </button>
             </div>
+
+            {showFpcCreate && (
+              <div className="glass-card rounded-xl p-4 mb-4 space-y-2.5">
+                <div className="flex items-center gap-2 mb-1">
+                  <Ticket className="w-4 h-4 text-primary" />
+                  <p className="text-xs font-bold text-foreground">Create FPC Code Manually</p>
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold">User ID (UUID)</label>
+                  <input
+                    type="text"
+                    value={newFpcUserId}
+                    onChange={(e) => setNewFpcUserId(e.target.value)}
+                    placeholder="00000000-0000-0000-0000-000000000000"
+                    maxLength={36}
+                    className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/30 font-mono-app"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold">Payment ID (UUID)</label>
+                  <input
+                    type="text"
+                    value={newFpcPaymentId}
+                    onChange={(e) => setNewFpcPaymentId(e.target.value)}
+                    placeholder="00000000-0000-0000-0000-000000000000"
+                    maxLength={36}
+                    className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/30 font-mono-app"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold">FPC Code (FPC-XXXXXXXX)</label>
+                  <div className="flex gap-2 mt-0.5">
+                    <input
+                      type="text"
+                      value={newFpcCode}
+                      onChange={(e) => setNewFpcCode(e.target.value.toUpperCase())}
+                      placeholder="FPC-ABCD1234"
+                      maxLength={32}
+                      className="flex-1 glass-card rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/30 font-mono-app"
+                    />
+                    <button
+                      onClick={handleAutoFillCode}
+                      type="button"
+                      className="glass-card px-3 rounded-lg text-[10px] font-bold text-primary hover:bg-primary/10"
+                    >
+                      Auto
+                    </button>
+                  </div>
+                </div>
+                <label className="flex items-start gap-2 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={newFpcConfirm}
+                    onChange={(e) => setNewFpcConfirm(e.target.checked)}
+                    className="mt-0.5 accent-primary"
+                  />
+                  <span className="text-[10px] text-muted-foreground leading-snug">
+                    I confirm the User ID and Payment ID are correct, and the user has paid for this code.
+                  </span>
+                </label>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={handleCreateFpcCode}
+                    disabled={processing === "create-fpc" || !newFpcConfirm}
+                    className="btn-cta flex-1 h-9 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50"
+                  >
+                    <Save className="w-3 h-3" /> Create Code
+                  </button>
+                  <button
+                    onClick={() => { setShowFpcCreate(false); setNewFpcUserId(""); setNewFpcPaymentId(""); setNewFpcCode(""); setNewFpcConfirm(false); }}
+                    className="glass-card flex-1 h-9 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-3 h-3" /> Cancel
+                  </button>
+                </div>
+              </div>
+            )}
             <input
               type="text"
               placeholder="Search by code, user id, or payment id..."
