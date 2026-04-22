@@ -1,11 +1,29 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity, Download, Pencil, Save, X, Ticket, Copy, Trash2, RotateCcw } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity, Download, Pencil, Save, X, Ticket, Copy, Trash2, RotateCcw, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const uuidSchema = z.string().uuid({ message: "Must be a valid UUID" });
+const fpcCodeSchema = z.object({
+  user_id: uuidSchema,
+  payment_id: uuidSchema,
+  code: z
+    .string()
+    .trim()
+    .regex(/^FPC-[A-Z0-9]{6,16}$/, { message: "Code must look like FPC-XXXXXXXX (uppercase letters/digits)" })
+    .max(32),
+});
+
+const paymentEditSchema = z.object({
+  amount: z.number().positive({ message: "Amount must be positive" }).max(10_000_000, { message: "Amount too large" }),
+  status: z.enum(["pending", "confirmed", "rejected"]),
+  receipt_url: z.string().trim().url({ message: "Must be a valid URL" }).max(500).or(z.literal("")),
+});
 
 interface WithdrawalRequest {
   id: string;
