@@ -269,6 +269,8 @@ const Admin = () => {
     setProcessing(null);
     fetchData();
   };
+
+  const statusIcon = (s: string) => {
     if (s === "pending") return <Clock className="w-3.5 h-3.5 text-yellow-400" />;
     if (s === "approved" || s === "confirmed") return <CheckCircle className="w-3.5 h-3.5 text-primary" />;
     return <XCircle className="w-3.5 h-3.5 text-destructive" />;
@@ -293,6 +295,8 @@ const Admin = () => {
     const q = fpcSearch.toLowerCase();
     return c.code.toLowerCase().includes(q) || c.user_id.toLowerCase().includes(q) || c.payment_id.toLowerCase().includes(q);
   });
+
+  if (roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
