@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle, Clock, XCircle, Receipt, Download, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, XCircle, Receipt, Download, Loader2, Copy, Sparkles, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface PaymentRecord {
   id: string;
@@ -12,6 +13,8 @@ interface PaymentRecord {
   status: string;
   created_at: string;
   reviewed_at: string | null;
+  fpc_code?: string | null;
+  fpc_used?: boolean;
 }
 
 const PaymentReceipt = () => {
