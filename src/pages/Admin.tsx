@@ -772,27 +772,98 @@ const Admin = () => {
                       <p className="text-base font-extrabold text-foreground">₦{pay.amount.toLocaleString()}</p>
                       <p className="text-[10px] text-muted-foreground">{new Date(pay.created_at).toLocaleString()}</p>
                     </div>
-                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusColor(pay.status)}`}>
-                      {statusIcon(pay.status)} {pay.status}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusColor(pay.status)}`}>
+                        {statusIcon(pay.status)} {pay.status}
+                      </span>
+                      {editingPayment !== pay.id && (
+                        <button
+                          onClick={() => {
+                            setEditingPayment(pay.id);
+                            setEditPayAmount(String(pay.amount));
+                            setEditPayStatus(pay.status as "pending" | "confirmed" | "rejected");
+                            setEditPayReceiptUrl(pay.receipt_url || "");
+                          }}
+                          className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                        >
+                          <Pencil className="w-3 h-3 text-primary" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  {pay.receipt_url && (
-                    <button
-                      onClick={() => setReceiptModal(pay.receipt_url)}
-                      className="w-full mb-3 inner-card rounded-xl p-3 flex items-center gap-3 hover:border-primary/30 transition-colors"
-                    >
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-secondary shrink-0">
-                        <img src={pay.receipt_url} alt="Receipt" className="w-full h-full object-cover" />
+
+                  {editingPayment === pay.id ? (
+                    <div className="space-y-2 mb-3">
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Amount (₦)</label>
+                        <input
+                          type="number"
+                          value={editPayAmount}
+                          onChange={(e) => setEditPayAmount(e.target.value)}
+                          className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30"
+                        />
                       </div>
-                      <div className="text-left">
-                        <p className="text-[11px] font-bold text-foreground">View Receipt</p>
-                        <p className="text-[9px] text-muted-foreground">Tap to view full receipt image</p>
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Status</label>
+                        <select
+                          value={editPayStatus}
+                          onChange={(e) => setEditPayStatus(e.target.value as "pending" | "confirmed" | "rejected")}
+                          className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30 bg-background"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="rejected">Rejected</option>
+                        </select>
                       </div>
-                      <Image className="w-4 h-4 text-muted-foreground ml-auto" />
-                    </button>
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Receipt URL</label>
+                        <input
+                          type="url"
+                          value={editPayReceiptUrl}
+                          onChange={(e) => setEditPayReceiptUrl(e.target.value)}
+                          maxLength={500}
+                          placeholder="https://..."
+                          className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/30"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSavePayment(pay)}
+                          disabled={processing === pay.id}
+                          className="btn-cta flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50"
+                        >
+                          <Save className="w-3 h-3" /> Save
+                        </button>
+                        <button
+                          onClick={() => setEditingPayment(null)}
+                          className="glass-card flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="w-3 h-3" /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {pay.receipt_url && (
+                        <button
+                          onClick={() => setReceiptModal(pay.receipt_url)}
+                          className="w-full mb-3 inner-card rounded-xl p-3 flex items-center gap-3 hover:border-primary/30 transition-colors"
+                        >
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-secondary shrink-0">
+                            <img src={pay.receipt_url} alt="Receipt" className="w-full h-full object-cover" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-[11px] font-bold text-foreground">View Receipt</p>
+                            <p className="text-[9px] text-muted-foreground">Tap to view full receipt image</p>
+                          </div>
+                          <Image className="w-4 h-4 text-muted-foreground ml-auto" />
+                        </button>
+                      )}
+                      <p className="text-[9px] text-muted-foreground mb-2 font-mono-app truncate">User: {pay.user_id.slice(0, 8)}... · Payment: {pay.id.slice(0, 8)}...</p>
+                    </>
                   )}
-                  <p className="text-[9px] text-muted-foreground mb-2 font-mono-app truncate">User: {pay.user_id.slice(0, 8)}...</p>
-                  {pay.status === "pending" && (
+
+                  {pay.status === "pending" && editingPayment !== pay.id && (
                     <div className="flex gap-2">
                       <button
                         onClick={() => handlePaymentAction(pay.id, "confirmed")}
