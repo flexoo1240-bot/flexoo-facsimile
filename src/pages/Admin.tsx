@@ -244,6 +244,8 @@ const Admin = () => {
     setProcessing(null);
     fetchData();
   };
+
+  const handleSaveUser = async (u: UserProfile) => {
     setProcessing(u.id);
     const { error } = await supabase
       .from("profiles")
