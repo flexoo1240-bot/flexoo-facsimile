@@ -372,6 +372,8 @@ const Admin = () => {
     setProcessing(null);
     fetchData();
   };
+
+  const statusIcon = (s: string) => {
     if (s === "pending") return <Clock className="w-3.5 h-3.5 text-yellow-400" />;
     if (s === "approved" || s === "confirmed") return <CheckCircle className="w-3.5 h-3.5 text-primary" />;
     return <XCircle className="w-3.5 h-3.5 text-destructive" />;
