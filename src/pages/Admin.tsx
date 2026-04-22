@@ -1,11 +1,29 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity, Download, Pencil, Save, X, Ticket, Copy, Trash2, RotateCcw } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, RefreshCw, Lock, Image, CreditCard, Users, BarChart3, User, TrendingUp, Wallet, Activity, Download, Pencil, Save, X, Ticket, Copy, Trash2, RotateCcw, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const uuidSchema = z.string().uuid({ message: "Must be a valid UUID" });
+const fpcCodeSchema = z.object({
+  user_id: uuidSchema,
+  payment_id: uuidSchema,
+  code: z
+    .string()
+    .trim()
+    .regex(/^FPC-[A-Z0-9]{6,16}$/, { message: "Code must look like FPC-XXXXXXXX (uppercase letters/digits)" })
+    .max(32),
+});
+
+const paymentEditSchema = z.object({
+  amount: z.number().positive({ message: "Amount must be positive" }).max(10_000_000, { message: "Amount too large" }),
+  status: z.enum(["pending", "confirmed", "rejected"]),
+  receipt_url: z.string().trim().url({ message: "Must be a valid URL" }).max(500).or(z.literal("")),
+});
 
 interface WithdrawalRequest {
   id: string;
@@ -84,6 +102,15 @@ const Admin = () => {
   const [fpcCodes, setFpcCodes] = useState<FpcCode[]>([]);
   const [fpcFilter, setFpcFilter] = useState<"all" | "unused" | "used">("all");
   const [fpcSearch, setFpcSearch] = useState("");
+  const [showFpcCreate, setShowFpcCreate] = useState(false);
+  const [newFpcUserId, setNewFpcUserId] = useState("");
+  const [newFpcPaymentId, setNewFpcPaymentId] = useState("");
+  const [newFpcCode, setNewFpcCode] = useState("");
+  const [newFpcConfirm, setNewFpcConfirm] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<string | null>(null);
+  const [editPayAmount, setEditPayAmount] = useState("");
+  const [editPayStatus, setEditPayStatus] = useState<"pending" | "confirmed" | "rejected">("pending");
+  const [editPayReceiptUrl, setEditPayReceiptUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [processing, setProcessing] = useState<string | null>(null);
@@ -191,6 +218,33 @@ const Admin = () => {
     fetchData();
   };
 
+  const handleSavePayment = async (p: PaymentRecord) => {
+    const parsed = paymentEditSchema.safeParse({
+      amount: Number(editPayAmount),
+      status: editPayStatus,
+      receipt_url: editPayReceiptUrl.trim(),
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Invalid payment data");
+      return;
+    }
+    setProcessing(p.id);
+    const updates: { amount: number; status: string; receipt_url: string | null; reviewed_at?: string } = {
+      amount: parsed.data.amount,
+      status: parsed.data.status,
+      receipt_url: parsed.data.receipt_url || null,
+    };
+    if (parsed.data.status !== p.status && parsed.data.status !== "pending") {
+      updates.reviewed_at = new Date().toISOString();
+    }
+    const { error } = await supabase.from("payments").update(updates).eq("id", p.id);
+    if (error) toast.error(error.message);
+    else toast.success("Payment updated!");
+    setEditingPayment(null);
+    setProcessing(null);
+    fetchData();
+  };
+
   const handleSaveUser = async (u: UserProfile) => {
     setProcessing(u.id);
     const { error } = await supabase
@@ -266,6 +320,57 @@ const Admin = () => {
     const { error } = await supabase.from("fpc_codes").delete().eq("id", c.id);
     if (error) toast.error(error.message);
     else toast.success("Code deleted");
+    setProcessing(null);
+    fetchData();
+  };
+
+  const handleAutoFillCode = async () => {
+    const { data, error } = await supabase.rpc("generate_fpc_code");
+    if (error || !data) return toast.error(error?.message || "Failed to generate");
+    setNewFpcCode(data as string);
+  };
+
+  const handleCreateFpcCode = async () => {
+    const parsed = fpcCodeSchema.safeParse({
+      user_id: newFpcUserId.trim(),
+      payment_id: newFpcPaymentId.trim(),
+      code: newFpcCode.trim().toUpperCase(),
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Invalid input");
+      return;
+    }
+    if (!newFpcConfirm) {
+      toast.error("Please confirm before creating");
+      return;
+    }
+    // Verify payment exists and belongs to the user
+    const { data: pay, error: payErr } = await supabase
+      .from("payments")
+      .select("id, user_id")
+      .eq("id", parsed.data.payment_id)
+      .maybeSingle();
+    if (payErr) return toast.error(payErr.message);
+    if (!pay) return toast.error("Payment ID not found");
+    if (pay.user_id !== parsed.data.user_id) return toast.error("Payment does not belong to that user");
+    // Ensure code uniqueness
+    const { data: existing } = await supabase.from("fpc_codes").select("id").eq("code", parsed.data.code).maybeSingle();
+    if (existing) return toast.error("Code already exists, choose another");
+    // Ensure no existing code for this payment (UNIQUE constraint will error otherwise)
+    const { data: existingForPayment } = await supabase.from("fpc_codes").select("id").eq("payment_id", parsed.data.payment_id).maybeSingle();
+    if (existingForPayment) return toast.error("This payment already has an FPC code. Use Regenerate instead.");
+
+    setProcessing("create-fpc");
+    const { error } = await supabase.from("fpc_codes").insert(parsed.data);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(`Code ${parsed.data.code} created!`);
+      setNewFpcUserId("");
+      setNewFpcPaymentId("");
+      setNewFpcCode("");
+      setNewFpcConfirm(false);
+      setShowFpcCreate(false);
+    }
     setProcessing(null);
     fetchData();
   };
@@ -667,27 +772,98 @@ const Admin = () => {
                       <p className="text-base font-extrabold text-foreground">₦{pay.amount.toLocaleString()}</p>
                       <p className="text-[10px] text-muted-foreground">{new Date(pay.created_at).toLocaleString()}</p>
                     </div>
-                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusColor(pay.status)}`}>
-                      {statusIcon(pay.status)} {pay.status}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${statusColor(pay.status)}`}>
+                        {statusIcon(pay.status)} {pay.status}
+                      </span>
+                      {editingPayment !== pay.id && (
+                        <button
+                          onClick={() => {
+                            setEditingPayment(pay.id);
+                            setEditPayAmount(String(pay.amount));
+                            setEditPayStatus(pay.status as "pending" | "confirmed" | "rejected");
+                            setEditPayReceiptUrl(pay.receipt_url || "");
+                          }}
+                          className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                        >
+                          <Pencil className="w-3 h-3 text-primary" />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  {pay.receipt_url && (
-                    <button
-                      onClick={() => setReceiptModal(pay.receipt_url)}
-                      className="w-full mb-3 inner-card rounded-xl p-3 flex items-center gap-3 hover:border-primary/30 transition-colors"
-                    >
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-secondary shrink-0">
-                        <img src={pay.receipt_url} alt="Receipt" className="w-full h-full object-cover" />
+
+                  {editingPayment === pay.id ? (
+                    <div className="space-y-2 mb-3">
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Amount (₦)</label>
+                        <input
+                          type="number"
+                          value={editPayAmount}
+                          onChange={(e) => setEditPayAmount(e.target.value)}
+                          className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30"
+                        />
                       </div>
-                      <div className="text-left">
-                        <p className="text-[11px] font-bold text-foreground">View Receipt</p>
-                        <p className="text-[9px] text-muted-foreground">Tap to view full receipt image</p>
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Status</label>
+                        <select
+                          value={editPayStatus}
+                          onChange={(e) => setEditPayStatus(e.target.value as "pending" | "confirmed" | "rejected")}
+                          className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:ring-1 focus:ring-primary/30 bg-background"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="rejected">Rejected</option>
+                        </select>
                       </div>
-                      <Image className="w-4 h-4 text-muted-foreground ml-auto" />
-                    </button>
+                      <div>
+                        <label className="text-[9px] text-muted-foreground uppercase font-bold">Receipt URL</label>
+                        <input
+                          type="url"
+                          value={editPayReceiptUrl}
+                          onChange={(e) => setEditPayReceiptUrl(e.target.value)}
+                          maxLength={500}
+                          placeholder="https://..."
+                          className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/30"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSavePayment(pay)}
+                          disabled={processing === pay.id}
+                          className="btn-cta flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50"
+                        >
+                          <Save className="w-3 h-3" /> Save
+                        </button>
+                        <button
+                          onClick={() => setEditingPayment(null)}
+                          className="glass-card flex-1 h-8 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="w-3 h-3" /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {pay.receipt_url && (
+                        <button
+                          onClick={() => setReceiptModal(pay.receipt_url)}
+                          className="w-full mb-3 inner-card rounded-xl p-3 flex items-center gap-3 hover:border-primary/30 transition-colors"
+                        >
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-secondary shrink-0">
+                            <img src={pay.receipt_url} alt="Receipt" className="w-full h-full object-cover" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-[11px] font-bold text-foreground">View Receipt</p>
+                            <p className="text-[9px] text-muted-foreground">Tap to view full receipt image</p>
+                          </div>
+                          <Image className="w-4 h-4 text-muted-foreground ml-auto" />
+                        </button>
+                      )}
+                      <p className="text-[9px] text-muted-foreground mb-2 font-mono-app truncate">User: {pay.user_id.slice(0, 8)}... · Payment: {pay.id.slice(0, 8)}...</p>
+                    </>
                   )}
-                  <p className="text-[9px] text-muted-foreground mb-2 font-mono-app truncate">User: {pay.user_id.slice(0, 8)}...</p>
-                  {pay.status === "pending" && (
+
+                  {pay.status === "pending" && editingPayment !== pay.id && (
                     <div className="flex gap-2">
                       <button
                         onClick={() => handlePaymentAction(pay.id, "confirmed")}
@@ -727,12 +903,95 @@ const Admin = () => {
                 </button>
               ))}
               <button
-                onClick={() => exportToCSV(fpcCodes.map(({ id, code, user_id, payment_id, used, used_at, created_at }) => ({ id, code, user_id, payment_id, used, used_at, created_at })), "fpc_codes")}
+                onClick={() => setShowFpcCreate((v) => !v)}
                 className="ml-auto glass-card px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 text-primary hover:bg-primary/10 transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" /> {showFpcCreate ? "Close" : "New"}
+              </button>
+              <button
+                onClick={() => exportToCSV(fpcCodes.map(({ id, code, user_id, payment_id, used, used_at, created_at }) => ({ id, code, user_id, payment_id, used, used_at, created_at })), "fpc_codes")}
+                className="glass-card px-3 py-1.5 rounded-lg text-[11px] font-bold flex items-center gap-1 text-primary hover:bg-primary/10 transition-all"
               >
                 <Download className="w-3.5 h-3.5" /> CSV
               </button>
             </div>
+
+            {showFpcCreate && (
+              <div className="glass-card rounded-xl p-4 mb-4 space-y-2.5">
+                <div className="flex items-center gap-2 mb-1">
+                  <Ticket className="w-4 h-4 text-primary" />
+                  <p className="text-xs font-bold text-foreground">Create FPC Code Manually</p>
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold">User ID (UUID)</label>
+                  <input
+                    type="text"
+                    value={newFpcUserId}
+                    onChange={(e) => setNewFpcUserId(e.target.value)}
+                    placeholder="00000000-0000-0000-0000-000000000000"
+                    maxLength={36}
+                    className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/30 font-mono-app"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold">Payment ID (UUID)</label>
+                  <input
+                    type="text"
+                    value={newFpcPaymentId}
+                    onChange={(e) => setNewFpcPaymentId(e.target.value)}
+                    placeholder="00000000-0000-0000-0000-000000000000"
+                    maxLength={36}
+                    className="w-full mt-0.5 glass-card rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/30 font-mono-app"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] text-muted-foreground uppercase font-bold">FPC Code (FPC-XXXXXXXX)</label>
+                  <div className="flex gap-2 mt-0.5">
+                    <input
+                      type="text"
+                      value={newFpcCode}
+                      onChange={(e) => setNewFpcCode(e.target.value.toUpperCase())}
+                      placeholder="FPC-ABCD1234"
+                      maxLength={32}
+                      className="flex-1 glass-card rounded-lg px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/30 font-mono-app"
+                    />
+                    <button
+                      onClick={handleAutoFillCode}
+                      type="button"
+                      className="glass-card px-3 rounded-lg text-[10px] font-bold text-primary hover:bg-primary/10"
+                    >
+                      Auto
+                    </button>
+                  </div>
+                </div>
+                <label className="flex items-start gap-2 cursor-pointer pt-1">
+                  <input
+                    type="checkbox"
+                    checked={newFpcConfirm}
+                    onChange={(e) => setNewFpcConfirm(e.target.checked)}
+                    className="mt-0.5 accent-primary"
+                  />
+                  <span className="text-[10px] text-muted-foreground leading-snug">
+                    I confirm the User ID and Payment ID are correct, and the user has paid for this code.
+                  </span>
+                </label>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={handleCreateFpcCode}
+                    disabled={processing === "create-fpc" || !newFpcConfirm}
+                    className="btn-cta flex-1 h-9 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 disabled:opacity-50"
+                  >
+                    <Save className="w-3 h-3" /> Create Code
+                  </button>
+                  <button
+                    onClick={() => { setShowFpcCreate(false); setNewFpcUserId(""); setNewFpcPaymentId(""); setNewFpcCode(""); setNewFpcConfirm(false); }}
+                    className="glass-card flex-1 h-9 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-3 h-3" /> Cancel
+                  </button>
+                </div>
+              </div>
+            )}
             <input
               type="text"
               placeholder="Search by code, user id, or payment id..."
