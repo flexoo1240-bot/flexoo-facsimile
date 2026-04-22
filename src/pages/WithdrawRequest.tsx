@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Banknote, AlertCircle } from "lucide-react";
+import { ArrowLeft, Banknote, AlertCircle, KeyRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +14,7 @@ const WithdrawRequest = () => {
   const [bankName, setBankName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accountName, setAccountName] = useState("");
-  const [bvn, setBvn] = useState("");
+  const [fpcCode, setFpcCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
 
@@ -39,23 +39,55 @@ const WithdrawRequest = () => {
     if (!bankName.trim()) return toast.error("Enter bank name");
     if (!accountNumber.trim() || accountNumber.length < 10) return toast.error("Enter valid account number");
     if (!accountName.trim()) return toast.error("Enter account name");
-    if (!bvn.trim() || bvn.length !== 11) return toast.error("Enter valid 11-digit BVN");
+    const codeInput = fpcCode.trim().toUpperCase();
+    if (!codeInput) return toast.error("Enter your FPC Code");
 
     setSubmitting(true);
-    const { error } = await supabase.from("withdrawal_requests").insert({
-      user_id: user.id,
-      amount: amt,
-      bank_name: bankName.trim(),
-      account_number: accountNumber.trim(),
-      account_name: accountName.trim(),
-      bvn: bvn.trim(),
-    });
 
-    if (error) {
+    // Validate FPC code: must belong to this user, exist, and be unused
+    const { data: codeRow, error: codeErr } = await supabase
+      .from("fpc_codes")
+      .select("id, used")
+      .eq("user_id", user.id)
+      .eq("code", codeInput)
+      .maybeSingle();
+
+    if (codeErr || !codeRow) {
+      toast.error("Invalid FPC Code. Make sure you typed it correctly.");
+      setSubmitting(false);
+      return;
+    }
+    if (codeRow.used) {
+      toast.error("This FPC Code has already been used.");
+      setSubmitting(false);
+      return;
+    }
+
+    const { data: inserted, error } = await supabase
+      .from("withdrawal_requests")
+      .insert({
+        user_id: user.id,
+        amount: amt,
+        bank_name: bankName.trim(),
+        account_number: accountNumber.trim(),
+        account_name: accountName.trim(),
+        bvn: codeInput, // legacy NOT NULL safety — also stored below in fpc_code
+        fpc_code: codeInput,
+      })
+      .select("id")
+      .single();
+
+    if (error || !inserted) {
       toast.error("Failed to submit request");
       setSubmitting(false);
       return;
     }
+
+    // Mark FPC code as used (single-use)
+    await supabase
+      .from("fpc_codes")
+      .update({ used: true, used_at: new Date().toISOString(), used_for_withdrawal_id: inserted.id })
+      .eq("id", codeRow.id);
 
     // Deduct from balance
     await supabase.from("profiles").update({ bonus_balance: balance - amt }).eq("user_id", user.id);
@@ -66,10 +98,9 @@ const WithdrawRequest = () => {
     setBankName("");
     setAccountNumber("");
     setAccountName("");
-    setBvn("");
+    setFpcCode("");
     setSubmitting(false);
 
-    // Refresh requests
     const { data } = await supabase.from("withdrawal_requests").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(10);
     setPendingRequests(data || []);
   };
@@ -95,7 +126,7 @@ const WithdrawRequest = () => {
         <div className="glass-card rounded-xl p-3 mb-4 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" />
           <p className="text-[10px] text-muted-foreground leading-relaxed">
-            Withdrawal requests require admin approval. Processing takes 24-48 hours. Minimum withdrawal: <span className="font-bold text-foreground">₦1,000</span>.
+            Withdrawal requires a valid <span className="font-bold text-foreground">FPC Code</span> from an approved payment. Each code can only be used once. Minimum withdrawal: <span className="font-bold text-foreground">₦1,000</span>.
           </p>
         </div>
 
@@ -142,14 +173,19 @@ const WithdrawRequest = () => {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1 block">BVN</label>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
+              <KeyRound className="w-3 h-3" /> FPC Code
+            </label>
             <input
               type="text"
-              value={bvn}
-              onChange={(e) => setBvn(e.target.value.replace(/\D/g, "").slice(0, 11))}
-              placeholder="11-digit BVN"
-              className="w-full h-10 rounded-lg bg-secondary border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+              value={fpcCode}
+              onChange={(e) => setFpcCode(e.target.value.toUpperCase().slice(0, 20))}
+              placeholder="FPC-XXXXXXXX"
+              className="w-full h-10 rounded-lg bg-secondary border border-border px-3 text-sm font-mono tracking-wider text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
             />
+            <p className="text-[9px] text-muted-foreground mt-1">
+              Don't have a code? <button type="button" onClick={() => navigate("/payment-receipt")} className="text-primary font-bold underline">View your receipts</button>
+            </p>
           </div>
         </div>
 
