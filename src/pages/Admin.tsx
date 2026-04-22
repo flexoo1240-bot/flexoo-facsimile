@@ -102,6 +102,15 @@ const Admin = () => {
   const [fpcCodes, setFpcCodes] = useState<FpcCode[]>([]);
   const [fpcFilter, setFpcFilter] = useState<"all" | "unused" | "used">("all");
   const [fpcSearch, setFpcSearch] = useState("");
+  const [showFpcCreate, setShowFpcCreate] = useState(false);
+  const [newFpcUserId, setNewFpcUserId] = useState("");
+  const [newFpcPaymentId, setNewFpcPaymentId] = useState("");
+  const [newFpcCode, setNewFpcCode] = useState("");
+  const [newFpcConfirm, setNewFpcConfirm] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<string | null>(null);
+  const [editPayAmount, setEditPayAmount] = useState("");
+  const [editPayStatus, setEditPayStatus] = useState<"pending" | "confirmed" | "rejected">("pending");
+  const [editPayReceiptUrl, setEditPayReceiptUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [processing, setProcessing] = useState<string | null>(null);
