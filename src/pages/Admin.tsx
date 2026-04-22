@@ -43,7 +43,18 @@ interface UserProfile {
   created_at: string;
 }
 
-type TabType = "analytics" | "withdrawals" | "payments" | "users";
+interface FpcCode {
+  id: string;
+  user_id: string;
+  payment_id: string;
+  code: string;
+  used: boolean;
+  used_at: string | null;
+  used_for_withdrawal_id: string | null;
+  created_at: string;
+}
+
+type TabType = "analytics" | "withdrawals" | "payments" | "users" | "fpc";
 
 const exportToCSV = (rows: Record<string, unknown>[], filename: string) => {
   if (!rows.length) return toast.error("No data to export");
@@ -70,6 +81,9 @@ const Admin = () => {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([]);
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [fpcCodes, setFpcCodes] = useState<FpcCode[]>([]);
+  const [fpcFilter, setFpcFilter] = useState<"all" | "unused" | "used">("all");
+  const [fpcSearch, setFpcSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [processing, setProcessing] = useState<string | null>(null);
@@ -143,6 +157,9 @@ const Admin = () => {
     } else if (tab === "users") {
       const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
       setUsers((data as UserProfile[]) || []);
+    } else if (tab === "fpc") {
+      const { data } = await supabase.from("fpc_codes").select("*").order("created_at", { ascending: false });
+      setFpcCodes((data as FpcCode[]) || []);
     }
     setLoading(false);
   };
