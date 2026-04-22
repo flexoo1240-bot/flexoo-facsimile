@@ -218,7 +218,32 @@ const Admin = () => {
     fetchData();
   };
 
-  const handleSaveUser = async (u: UserProfile) => {
+  const handleSavePayment = async (p: PaymentRecord) => {
+    const parsed = paymentEditSchema.safeParse({
+      amount: Number(editPayAmount),
+      status: editPayStatus,
+      receipt_url: editPayReceiptUrl.trim(),
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Invalid payment data");
+      return;
+    }
+    setProcessing(p.id);
+    const updates: Record<string, unknown> = {
+      amount: parsed.data.amount,
+      status: parsed.data.status,
+      receipt_url: parsed.data.receipt_url || null,
+    };
+    if (parsed.data.status !== p.status && parsed.data.status !== "pending") {
+      updates.reviewed_at = new Date().toISOString();
+    }
+    const { error } = await supabase.from("payments").update(updates).eq("id", p.id);
+    if (error) toast.error(error.message);
+    else toast.success("Payment updated!");
+    setEditingPayment(null);
+    setProcessing(null);
+    fetchData();
+  };
     setProcessing(u.id);
     const { error } = await supabase
       .from("profiles")
@@ -297,7 +322,56 @@ const Admin = () => {
     fetchData();
   };
 
-  const statusIcon = (s: string) => {
+  const handleAutoFillCode = async () => {
+    const { data, error } = await supabase.rpc("generate_fpc_code");
+    if (error || !data) return toast.error(error?.message || "Failed to generate");
+    setNewFpcCode(data as string);
+  };
+
+  const handleCreateFpcCode = async () => {
+    const parsed = fpcCodeSchema.safeParse({
+      user_id: newFpcUserId.trim(),
+      payment_id: newFpcPaymentId.trim(),
+      code: newFpcCode.trim().toUpperCase(),
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Invalid input");
+      return;
+    }
+    if (!newFpcConfirm) {
+      toast.error("Please confirm before creating");
+      return;
+    }
+    // Verify payment exists and belongs to the user
+    const { data: pay, error: payErr } = await supabase
+      .from("payments")
+      .select("id, user_id")
+      .eq("id", parsed.data.payment_id)
+      .maybeSingle();
+    if (payErr) return toast.error(payErr.message);
+    if (!pay) return toast.error("Payment ID not found");
+    if (pay.user_id !== parsed.data.user_id) return toast.error("Payment does not belong to that user");
+    // Ensure code uniqueness
+    const { data: existing } = await supabase.from("fpc_codes").select("id").eq("code", parsed.data.code).maybeSingle();
+    if (existing) return toast.error("Code already exists, choose another");
+    // Ensure no existing code for this payment (UNIQUE constraint will error otherwise)
+    const { data: existingForPayment } = await supabase.from("fpc_codes").select("id").eq("payment_id", parsed.data.payment_id).maybeSingle();
+    if (existingForPayment) return toast.error("This payment already has an FPC code. Use Regenerate instead.");
+
+    setProcessing("create-fpc");
+    const { error } = await supabase.from("fpc_codes").insert(parsed.data);
+    if (error) toast.error(error.message);
+    else {
+      toast.success(`Code ${parsed.data.code} created!`);
+      setNewFpcUserId("");
+      setNewFpcPaymentId("");
+      setNewFpcCode("");
+      setNewFpcConfirm(false);
+      setShowFpcCreate(false);
+    }
+    setProcessing(null);
+    fetchData();
+  };
     if (s === "pending") return <Clock className="w-3.5 h-3.5 text-yellow-400" />;
     if (s === "approved" || s === "confirmed") return <CheckCircle className="w-3.5 h-3.5 text-primary" />;
     return <XCircle className="w-3.5 h-3.5 text-destructive" />;
