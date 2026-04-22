@@ -322,6 +322,7 @@ const Admin = () => {
     { key: "withdrawals", label: "Withdrawals", icon: <CreditCard className="w-3.5 h-3.5" /> },
     { key: "payments", label: "Payments", icon: <Image className="w-3.5 h-3.5" /> },
     { key: "users", label: "Users", icon: <Users className="w-3.5 h-3.5" /> },
+    { key: "fpc", label: "FPC Codes", icon: <Ticket className="w-3.5 h-3.5" /> },
   ];
 
   return (
