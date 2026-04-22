@@ -128,18 +128,51 @@ const PaymentReceipt = () => {
                   </div>
 
                   {pay.status === "confirmed" && (
-                    <div className="rounded-xl p-3 bg-primary/5 border border-primary/20 mb-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <CheckCircle className="w-4 h-4 text-primary" />
-                        <p className="text-xs font-bold text-primary">Payment Confirmed</p>
+                    <>
+                      <div className="rounded-xl p-3 bg-primary/5 border border-primary/20 mb-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <CheckCircle className="w-4 h-4 text-primary" />
+                          <p className="text-xs font-bold text-primary">Payment Confirmed</p>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          Your payment has been verified and approved by admin.
+                          {pay.reviewed_at && (
+                            <> Reviewed on {new Date(pay.reviewed_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.</>
+                          )}
+                        </p>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        Your payment has been verified and approved by admin.
-                        {pay.reviewed_at && (
-                          <> Reviewed on {new Date(pay.reviewed_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}.</>
-                        )}
-                      </p>
-                    </div>
+
+                      {pay.fpc_code && (
+                        <div className="rounded-xl p-4 mb-3 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border border-primary/30 relative overflow-hidden">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            <p className="text-xs font-extrabold text-primary uppercase tracking-wider">🎉 Congratulations!</p>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+                            Here is your FPC Code. Use it on the withdrawal page to unlock your funds.
+                          </p>
+                          <div className="flex items-stretch gap-2">
+                            <div className="flex-1 inner-card rounded-lg px-3 py-2.5 font-mono text-sm font-bold text-foreground tracking-wider truncate">
+                              {pay.fpc_code}
+                            </div>
+                            <button
+                              onClick={() => copyCode(pay.fpc_code!)}
+                              className="btn-cta px-3 rounded-lg flex items-center justify-center"
+                              aria-label="Copy FPC code"
+                            >
+                              {copiedCode === pay.fpc_code ? (
+                                <Check className="w-4 h-4" />
+                              ) : (
+                                <Copy className="w-4 h-4" />
+                              )}
+                            </button>
+                          </div>
+                          {pay.fpc_used && (
+                            <p className="text-[10px] text-muted-foreground mt-2 italic">This code has already been used.</p>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {pay.status === "pending" && (
