@@ -229,7 +229,7 @@ const Admin = () => {
       return;
     }
     setProcessing(p.id);
-    const updates: Record<string, unknown> = {
+    const updates: { amount: number; status: string; receipt_url: string | null; reviewed_at?: string } = {
       amount: parsed.data.amount,
       status: parsed.data.status,
       receipt_url: parsed.data.receipt_url || null,
