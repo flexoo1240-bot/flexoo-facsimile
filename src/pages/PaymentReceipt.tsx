@@ -23,20 +23,43 @@ const PaymentReceipt = () => {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewingReceipt, setViewingReceipt] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     const load = async () => {
-      const { data } = await supabase
+      const { data: pays } = await supabase
         .from("payments")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
-      setPayments((data as PaymentRecord[]) || []);
+
+      const { data: codes } = await supabase
+        .from("fpc_codes")
+        .select("payment_id, code, used")
+        .eq("user_id", user.id);
+
+      const codeMap = new Map((codes || []).map((c) => [c.payment_id, c]));
+      const merged: PaymentRecord[] = (pays || []).map((p) => {
+        const c = codeMap.get(p.id);
+        return { ...p, fpc_code: c?.code ?? null, fpc_used: c?.used ?? false };
+      });
+      setPayments(merged);
       setLoading(false);
     };
     load();
   }, [user]);
+
+  const copyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      toast.success("FPC Code copied!");
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch {
+      toast.error("Failed to copy");
+    }
+  };
 
   const statusConfig = (s: string) => {
     if (s === "confirmed")
