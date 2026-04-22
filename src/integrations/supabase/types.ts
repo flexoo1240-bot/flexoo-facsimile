@@ -38,6 +38,39 @@ export type Database = {
         }
         Relationships: []
       }
+      fpc_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          payment_id: string
+          used: boolean
+          used_at: string | null
+          used_for_withdrawal_id: string | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          payment_id: string
+          used?: boolean
+          used_at?: string | null
+          used_for_withdrawal_id?: string | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          payment_id?: string
+          used?: boolean
+          used_at?: string | null
+          used_for_withdrawal_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -166,8 +199,9 @@ export type Database = {
           account_number: string
           amount: number
           bank_name: string
-          bvn: string
+          bvn: string | null
           created_at: string
+          fpc_code: string | null
           id: string
           reviewed_at: string | null
           status: string
@@ -178,8 +212,9 @@ export type Database = {
           account_number: string
           amount: number
           bank_name: string
-          bvn: string
+          bvn?: string | null
           created_at?: string
+          fpc_code?: string | null
           id?: string
           reviewed_at?: string | null
           status?: string
@@ -190,8 +225,9 @@ export type Database = {
           account_number?: string
           amount?: number
           bank_name?: string
-          bvn?: string
+          bvn?: string | null
           created_at?: string
+          fpc_code?: string | null
           id?: string
           reviewed_at?: string | null
           status?: string
@@ -212,6 +248,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      generate_fpc_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
